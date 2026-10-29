@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jingle Bells — offline chord layout</title>
+    <style>
+body {
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.5;
+  margin: 2rem auto;
+  max-width: 48rem;
+  padding: 0 1rem;
+}
+
+.chord-size-control {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  color: #666;
+}
+
+.chord-size-control button {
+  padding: 0 0.5em;
+  font-size: 2em;
+  line-height: 1;
+}
+
+.song {
+  color: #111;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.song-line {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.song-fragment {
+  display: flex;
+  flex-direction: column;
+  white-space: pre;
+}
+
+.song-fragment em {
+  color: #900;
+  font-family: Montserrat, sans-serif;
+  font-size: var(--chord-size, 2em);
+  font-style: normal;
+  line-height: 1;
+  min-height: 1em;
+  padding-right: 0.25em;
+}
+
+.song-fragment span {
+  white-space: pre;
+}
+
+.song-line + .song-line {
+  margin-top: 0.4em;
+}
+
+    </style>
+    
+  </head>
+  <body>
+    <h1>Jingle Bells</h1>
+    <p>Words and music by James Lord Pierpont (1857).</p>
+    <div class="chord-size-control">
+      Chord size
+      <button
+        type="button"
+        id="chord-size-decrease"
+        aria-label="Shrink chords">
+        −
+      </button>
+      <output id="chord-size-value" aria-live="polite">2</output>
+      <button
+        type="button"
+        id="chord-size-increase"
+        aria-label="Enlarge chords">
+        +
+      </button>
+    </div>
+    <pre data-chord-lines>
+.
+[Verse]
+G                              G              C
+Dashing through the snow, in a one-horse open sleigh,
+Am                 D7                   G
+O'er the fields we go, laughing all the way.
+G                        G              C
+Bells on bob-tails ring, making spirits bright,
+     Am           D               D7               G      D7
+What fun it is to ride and sing a sleighing song tonight. Oh!
+
+[Chorus]
+G                                  C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     A7             D7
+In a one-horse open sleigh, hey!
+G                                  C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     D7             G
+In a one-horse open sleigh!
+
+[Verse]
+  G                 G                  C
+A day or two ago, I thought I'd take a ride
+    Am              D7                      G
+And soon Miss Fanny Bright was seated by my side
+    G                  G                           C
+The horse was lean and lank, misfortune seemed his lot
+   Am         D                D7             G    D7
+We ran into a drifted bank and there we got upsot. Oh!
+
+[Chorus]
+G                           G      C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     A7             D7
+In a one-horse open sleigh, hey!
+G                           G      C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     D7             G
+In a one-horse open sleigh!
+
+[Verse]
+  G                   G            C
+A day or two ago, the story I must tell
+  Am              D7                    G
+I went out on the snow and on my back I fell
+                          G              C
+A gent was riding by in a one-horse open sleigh
+    Am              D               D7             G     D7
+He laughed at me as I there lay but quickly drove away.  Oh!
+
+[Chorus]
+G                           G      C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     A7             D7
+In a one-horse open sleigh, hey!
+G                                  C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     D7             G
+In a one-horse open sleigh!
+
+[Verse]
+G                           G               C
+Now the ground is white, go it while you're young
+Am              D7                           G
+Take the girls along and sing this sleighing song
+     G                        G            C
+Just bet a bobtailed bay, two forty as his speed
+Am              D               D7                     G     D7
+Hitch him to an open sleigh and crack! you'll take the lead. Oh!
+
+[Chorus]
+G                           G      C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     A7             D7
+In a one-horse open sleigh, hey!
+G                           G      C       G
+Jingle bells, jingle bells, jingle all the way!
+C              G
+Oh what fun it is to ride
+     D7             G
+In a one-horse open sleigh!</pre
+    >
+    <script>
+(() => {
+  "use strict";
+
+  const source = document.querySelector("pre[data-chord-lines]");
+  if (!source) return;
+
+  const song = document.createElement("section");
+  song.className = "song";
+
+  const lines = source.textContent.replace(/\r\n?/g, "\n").split("\n");
+  if (lines.at(-1) === "") lines.pop();
+
+  for (let index = 0; index < lines.length; index += 2) {
+    const lyricLine = Array.from(lines[index + 1] ?? "");
+    const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => ({
+      chord: match[0],
+      column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
+    }));
+
+    const row = document.createElement("article");
+    row.className = "song-line";
+
+    let cursor = 0;
+    for (const [chordIndex, item] of chords.entries()) {
+      if (item.column > cursor) {
+        addFragment(row, "", lyricLine.slice(cursor, item.column).join(""));
+      }
+
+      const nextColumn = chords[chordIndex + 1]?.column ?? lyricLine.length;
+      addFragment(row, item.chord, lyricLine.slice(item.column, nextColumn).join(""));
+      cursor = Math.max(cursor, nextColumn);
+    }
+
+    if (chords.length === 0) {
+      addFragment(row, "", lyricLine.join(""));
+    } else if (cursor < lyricLine.length) {
+      addFragment(row, "", lyricLine.slice(cursor).join(""));
+    }
+
+    song.append(row);
+  }
+
+  source.replaceWith(song);
+
+  const sizeControl = document.querySelector(".chord-size-control");
+  const sizeOutput = sizeControl?.querySelector("output");
+  if (sizeControl && sizeOutput) {
+    const initialSize = Number.parseInt(sizeOutput.textContent, 10);
+    const size = Number.isInteger(initialSize) ? Math.min(5, Math.max(1, initialSize)) : 2;
+    sizeOutput.textContent = String(size);
+    song.style.setProperty("--chord-size", `${size}em`);
+
+    sizeControl.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button || !sizeControl.contains(button)) return;
+
+      const change = button.id === "chord-size-increase"
+        ? 1
+        : button.id === "chord-size-decrease"
+          ? -1
+          : 0;
+      if (change === 0) return;
+
+      const currentSize = Number.parseInt(sizeOutput.textContent, 10);
+      const nextSize = Math.min(5, Math.max(1, currentSize + change));
+      sizeOutput.textContent = String(nextSize);
+      song.style.setProperty("--chord-size", `${nextSize}em`);
+    });
+  }
+
+  function addFragment(row, chord, lyric) {
+    const fragment = document.createElement("div");
+    fragment.className = "song-fragment";
+
+    const chordElement = document.createElement("em");
+    chordElement.textContent = chord;
+    fragment.append(chordElement);
+
+    const lyricElement = document.createElement("span");
+    lyricElement.textContent = lyric;
+    fragment.append(lyricElement);
+
+    row.append(fragment);
+  }
+})();
+
+    </script>
+  </body>
+</html>
