@@ -42,6 +42,32 @@
 
   source.replaceWith(song);
 
+  const sizeControl = document.querySelector(".chord-size-control");
+  const sizeOutput = sizeControl?.querySelector("output");
+  if (sizeControl && sizeOutput) {
+    const initialSize = Number.parseInt(sizeOutput.textContent, 10);
+    const size = Number.isInteger(initialSize) ? Math.min(6, Math.max(1, initialSize)) : 2;
+    sizeOutput.textContent = String(size);
+    song.style.setProperty("--chord-size", `${size}em`);
+
+    sizeControl.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button || !sizeControl.contains(button)) return;
+
+      const change = button.id === "chord-size-increase"
+        ? 1
+        : button.id === "chord-size-decrease"
+          ? -1
+          : 0;
+      if (change === 0) return;
+
+      const currentSize = Number.parseInt(sizeOutput.textContent, 10);
+      const nextSize = Math.min(6, Math.max(1, currentSize + change));
+      sizeOutput.textContent = String(nextSize);
+      song.style.setProperty("--chord-size", `${nextSize}em`);
+    });
+  }
+
   function addFragment(row, chord, lyric) {
     const fragment = document.createElement("div");
     fragment.className = "song-fragment";

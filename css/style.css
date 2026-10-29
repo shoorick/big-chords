@@ -1,9 +1,22 @@
 body {
-  font-family: "Open Sans",sans-serif;
+  font-family: "Open Sans", sans-serif;
   line-height: 1.5;
   margin: 2rem auto;
   max-width: 48rem;
   padding: 0 1rem;
+}
+
+.chord-size-control {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  color: #666;
+}
+
+.chord-size-control button {
+  padding: 0 0.5em;
+  font-size: 2em;
+  line-height: 1;
 }
 
 .song {
@@ -29,8 +42,8 @@ body {
 
 .song-fragment em {
   color: #900;
-  font-family: Montserrat,sans-serif;
-  font-size: 2em;
+  font-family: Montserrat, sans-serif;
+  font-size: var(--chord-size, 2em);
   font-style: normal;
   line-height: 1;
   min-height: 1em;

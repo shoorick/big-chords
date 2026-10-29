@@ -10,7 +10,22 @@
   <body>
     <h1>Jingle Bells</h1>
     <p>Words and music by James Lord Pierpont (1857).</p>
-
+    <div class="chord-size-control">
+      Chord size
+      <button
+        type="button"
+        id="chord-size-decrease"
+        aria-label="Shrink chords">
+        −
+      </button>
+      <output id="chord-size-value" aria-live="polite">2</output>
+      <button
+        type="button"
+        id="chord-size-increase"
+        aria-label="Enlarge chords">
+        +
+      </button>
+    </div>
     <pre data-chord-lines>.
 [Verse]
 G                              G              C
