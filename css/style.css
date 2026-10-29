@@ -1,0 +1,40 @@
+body {
+  font-family: "Open Sans",sans-serif;
+  line-height: 1.5;
+  margin: 2rem auto;
+  max-width: 48rem;
+  padding: 0 1rem;
+}
+
+.song {
+  color: #111;
+}
+
+.song-line {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.song-fragment {
+  display: flex;
+  flex-direction: column;
+  white-space: pre;
+}
+
+.song-fragment em {
+  color: #900;
+  font-family: Montserrat,sans-serif;
+  font-size: 2em;
+  font-style: normal;
+  line-height: 1;
+  min-height: 1em;
+  padding-right: 0.25em;
+}
+
+.song-fragment span {
+  white-space: pre;
+}
+
+.song-line + .song-line {
+  margin-top: 0.4em;
+}
