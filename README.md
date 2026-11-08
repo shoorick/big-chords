@@ -10,7 +10,7 @@ Set `CHORD_NOTATION_SYSTEM` in `js/split.js` to `"english"`, `"german"`, or `"au
 
 Set `CHORD_ENHARMONIC_PREFERENCE` to `"sharps"`, `"flats"`, or `"as-is"` to choose the default spelling. A page with an `.enharmonic-control` radio group uses its current selection instead. The preference applies to the root and optional slash bass while preserving the chord quality. Notes whose pitch class is unresolved stay as written.
 
-The Jingle Bells example includes a radio group that switches between these three spellings while the page is open.
+An optional `.notation-system-control` radio group switches the displayed notation between English (`B♭`/`B`) and German (`B`/`H`).
 
 Run the notation detection and chord parsing tests with `npm test` (Node.js 18 or newer).
 
@@ -61,8 +61,9 @@ The result looks like this:
 
 Examples are in the `samples/` directory:
 
-- [Jingle Bells](samples/jingle-bells.html)
+- [Jingle Bells](samples/jingle-bells.html) — minimal example
 - [Jingle Bells — all-in-one](samples/jingle-bells-offline.html) (see below)
+- [The One Horse Open Sleigh — full example](samples/one-horse-open-sleigh.html), with all three settings configurable: chord size, enharmonic spelling, and displayed notation system.
 
 For pages in `samples/`, use the paths `../css/style.css` and `../js/split.js`.
 
