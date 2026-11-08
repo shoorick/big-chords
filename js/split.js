@@ -3,6 +3,7 @@
 
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
   const CHORD_ENHARMONIC_PREFERENCE = "as-is"; // "sharps", "flats", or "as-is"
+  const scriptElement = typeof document === "undefined" ? null : document.currentScript;
   const source = typeof document === "undefined"
     ? null
     : document.querySelector("pre[data-chord-lines]");
@@ -18,13 +19,36 @@
 
   const lines = source.textContent.replace(/\r\n?/g, "\n").split("\n");
   if (lines.at(-1) === "") lines.pop();
+  const configuredNotationSystem = getDataSetting(
+    "notation-system",
+    ["english", "german", "auto"],
+    CHORD_NOTATION_SYSTEM,
+  );
   const detectedNotationSystem = detectNotationSystem(
     lines.filter((_, index) => index % 2 === 0),
   );
-  const notationSystem = CHORD_NOTATION_SYSTEM === "auto"
+  const notationSystem = configuredNotationSystem === "auto"
     ? detectedNotationSystem
-    : CHORD_NOTATION_SYSTEM;
-  const enharmonicPreference = getEnharmonicPreference();
+    : configuredNotationSystem;
+  const configuredEnharmonicPreference = getDataSetting(
+    "enharmonic-preference",
+    ["sharps", "flats", "as-is"],
+    CHORD_ENHARMONIC_PREFERENCE,
+  );
+  const configuredDisplayNotationSystem = getDataSetting(
+    "display-notation-system",
+    ["english", "german"],
+    null,
+  );
+  const configuredChordSize = getDataSetting(
+    "chord-size",
+    ["1", "2", "3", "4", "5", "6"],
+    null,
+  );
+  applyDataSettingToControl("enharmonic-preference", ["sharps", "flats", "as-is"]);
+  applyDataSettingToControl("display-notation-system", ["english", "german"]);
+  applyDataSettingToControl("chord-size", ["1", "2", "3", "4", "5", "6"]);
+  const enharmonicPreference = getEnharmonicPreference(configuredEnharmonicPreference);
   const chordElements = [];
 
   for (let index = 0; index < lines.length; index += 2) {
@@ -34,7 +58,7 @@
       return {
         parsed,
         chord: parsed
-          ? respellChord(parsed, enharmonicPreference, getDisplayNotationSystem())
+          ? respellChord(parsed, enharmonicPreference, getDisplayNotationSystem(configuredDisplayNotationSystem))
           : match[0],
         column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
       };
@@ -67,8 +91,8 @@
   source.replaceWith(song);
 
   const refreshChordSpellings = () => {
-    const preference = getEnharmonicPreference();
-    const displaySystem = getDisplayNotationSystem();
+    const preference = getEnharmonicPreference(configuredEnharmonicPreference);
+    const displaySystem = getDisplayNotationSystem(configuredDisplayNotationSystem);
     for (const { element, parsed } of chordElements) {
       element.textContent = respellChord(parsed, preference, displaySystem);
     }
@@ -83,27 +107,27 @@
   }
 
   const sizeControl = document.querySelector(".chord-size-control");
-  if (sizeControl) {
-    const setChordSize = (value) => {
-      const parsedSize = Number.parseInt(value, 10);
-      const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
-      song.style.setProperty("--chord-size", `${size}em`);
-      return size;
-    };
-    const sizeRadios = sizeControl.querySelectorAll('input[name="chord-size"]');
-
-    if (sizeRadios.length > 0) {
-      const selectedSize = sizeControl.querySelector('input[name="chord-size"]:checked');
-      setChordSize(selectedSize?.value ?? 2);
-      sizeControl.addEventListener("change", (event) => {
-        if (event.target.name === "chord-size") setChordSize(event.target.value);
-      });
-    } else {
-      const sizeOutput = sizeControl.querySelector("output");
-      if (!sizeOutput) return;
-
-      const size = setChordSize(sizeOutput.textContent);
-      sizeOutput.textContent = String(size);
+  const sizeRadios = sizeControl?.querySelectorAll('input[name="chord-size"]') ?? [];
+  const sizeOutput = sizeControl?.querySelector("output");
+  const setChordSize = (value) => {
+    const parsedSize = Number.parseInt(value, 10);
+    const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
+    song.style.setProperty("--chord-size", `${size}em`);
+    return size;
+  };
+  const checkedRadio = sizeControl?.querySelector('input[name="chord-size"]:checked');
+  const checkedSize = checkedRadio ? getRadioValue(checkedRadio) : undefined;
+  const initialSize = configuredChordSize ?? checkedSize ?? sizeOutput?.textContent ?? 2;
+  const size = setChordSize(initialSize);
+  if (sizeRadios.length > 0) {
+    const radio = [...sizeRadios].find((input) => getRadioValue(input) === String(size));
+    if (radio) radio.checked = true;
+    sizeControl.addEventListener("change", (event) => {
+      if (event.target.name === "chord-size") setChordSize(getRadioValue(event.target));
+    });
+  } else if (sizeOutput) {
+    sizeOutput.textContent = String(size);
+    if (sizeControl) {
       sizeControl.addEventListener("click", (event) => {
         const button = event.target.closest("button");
         if (!button || !sizeControl.contains(button)) return;
@@ -138,16 +162,41 @@
     return chordElement;
   }
 
-  function getEnharmonicPreference() {
+  function getEnharmonicPreference(fallback = CHORD_ENHARMONIC_PREFERENCE) {
     const selected = document.querySelector('input[name="enharmonic-preference"]:checked')?.value;
     return ["sharps", "flats", "as-is"].includes(selected)
       ? selected
-      : CHORD_ENHARMONIC_PREFERENCE;
+      : fallback;
   }
 
-  function getDisplayNotationSystem() {
+  function getDataSetting(name, validValues, fallback) {
+    for (const element of [source, scriptElement]) {
+      const value = element?.getAttribute(`data-${name}`);
+      if (validValues.includes(value)) return value;
+    }
+    return fallback;
+  }
+
+  function applyDataSettingToControl(name, validValues) {
+    const value = getDataSetting(name, validValues, null);
+    if (value === null) return;
+
+    const radio = [...document.querySelectorAll(`input[name="${name}"]`)]
+      .find((input) => getRadioValue(input) === value);
+    if (radio) radio.checked = true;
+  }
+
+  function getRadioValue(input) {
+    if (input.name === "chord-size" && input.value === "on") {
+      const label = input.closest("label")?.textContent.trim();
+      if (/^[1-6]$/.test(label)) return label;
+    }
+    return input.value;
+  }
+
+  function getDisplayNotationSystem(fallback = null) {
     const selected = document.querySelector('input[name="display-notation-system"]:checked')?.value;
-    return ["english", "german"].includes(selected) ? selected : null;
+    return ["english", "german"].includes(selected) ? selected : fallback;
   }
 
   function parseChord(source, system) {

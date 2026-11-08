@@ -52,10 +52,35 @@ Optionally, add a chord-size control:
   </button>
 </div>
 ```
-
 The result looks like this:
 
 ![Formatted page](twinkle.png)
+
+## Data attributes
+
+Set options on the `<script>` element to provide defaults, or on a specific `<pre data-chord-lines>` to override them for that chord sheet. When both elements define the same option, the `<pre>` value takes precedence. These values set the initial options and update matching controls; the controls remain available for changing settings while the page is open.
+
+- `data-notation-system`: how to read chord names; `auto`, `english`, or `german`.
+- `data-enharmonic-preference`: how to spell enharmonic notes; `as-is`, `sharps`, or `flats`.
+- `data-display-notation-system`: which note-name system to use when displaying chords; `english` or `german`.
+- `data-chord-size`: initial chord size, from `1` to `6`.
+
+Chord-size radio buttons may omit `value`; when they do, the script reads the size (`1`–`6`) from the text in the wrapping `<label>`.
+
+For example, set defaults on the script and choose German display notation for one chord sheet:
+
+```html
+<script
+  src="../js/split.js"
+  defer
+  data-notation-system="auto"
+  data-enharmonic-preference="as-is"
+  data-display-notation-system="english"
+  data-chord-size="2"></script>
+
+<pre data-chord-lines data-display-notation-system="german" data-chord-size="4">Bbm/Db
+Example lyrics</pre>
+```
 
 ## Examples
 
@@ -64,6 +89,7 @@ Examples are in the `samples/` directory:
 - [Jingle Bells](samples/jingle-bells.html) — minimal example
 - [Jingle Bells — all-in-one](samples/jingle-bells-offline.html) (see below)
 - [The One Horse Open Sleigh — full example](samples/one-horse-open-sleigh.html), with all three settings configurable: chord size, enharmonic spelling, and displayed notation system.
+- [The One Horse Open Sleigh — German notation preset](samples/one-horse-open-sleigh-german.html), with German display notation selected through a `data-` attribute.
 
 For pages in `samples/`, use the paths `../css/style.css` and `../js/split.js`.
 
