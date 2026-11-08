@@ -1,6 +1,6 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { detectNotationSystem, parseChord, respellChord } = require("../js/split.js");
+const { detectNotationSystem, parseChord, respellChord } = require("../js/big-chords.js");
 
 test("parses common Latin chord symbols and preserves their quality suffixes", () => {
   const examples = [

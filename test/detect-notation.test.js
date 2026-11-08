@@ -1,6 +1,6 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { detectNotationSystem } = require("../js/split.js");
+const { detectNotationSystem } = require("../js/big-chords.js");
 
 test("detects German notation from H in a chord root", () => {
   assert.equal(detectNotationSystem(["Hm", "C"]), "german");

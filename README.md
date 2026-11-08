@@ -1,12 +1,12 @@
 # Big Chords
 
-`js/split.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. If the page includes a `.chord-size-control`, its <kbd>+</kbd> and <kbd>−</kbd> buttons adjust the chord size.
+`js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. If the page includes a `.chord-size-control`, its <kbd>+</kbd> and <kbd>−</kbd> buttons adjust the chord size.
 
 Cyrillic `А`, `В`, `С`, `Е`, and `Н` are converted to Latin `A`, `B`, `C`, `E`, and `H` at the start of a chord and after `/`. Within chord tokens, Cyrillic soft signs (`Ь`/`ь`) and lowercase Latin `b` after an uppercase Latin letter become `♭`, and `#` becomes `♯`.
 
 The parser separates a chord into its root note, quality suffix, and optional bass note after `/`. It returns `source`, `root` (`letter`, `accidental`, and `pitchClass`), `quality`, `bass` (or `null`), `normalized`, and `notationSystem` fields. Tokens with an unrecognized root or bass are displayed as written.
 
-Set `CHORD_NOTATION_SYSTEM` in `js/split.js` to `"english"`, `"german"`, or `"auto"`. English notation treats `B` as B natural; German notation treats `B` as B-flat and `H` as B natural. In automatic mode, an `H` root or bass selects German notation, while a B-flat root or bass selects English notation. If neither clue appears, or both appear, the system remains unresolved; `B` and `H` then have no `pitchClass` until a system is selected manually.
+Set `CHORD_NOTATION_SYSTEM` in `js/big-chords.js` to `"english"`, `"german"`, or `"auto"`. English notation treats `B` as B natural; German notation treats `B` as B-flat and `H` as B natural. In automatic mode, an `H` root or bass selects German notation, while a B-flat root or bass selects English notation. If neither clue appears, or both appear, the system remains unresolved; `B` and `H` then have no `pitchClass` until a system is selected manually.
 
 Set `CHORD_ENHARMONIC_PREFERENCE` to `"sharps"`, `"flats"`, or `"as-is"` to choose the default spelling. A page with an `.enharmonic-control` radio group uses its current selection instead. The preference applies to the root and optional slash bass while preserving the chord quality. Notes whose pitch class is unresolved stay as written.
 
@@ -24,7 +24,7 @@ Link the stylesheet and script from an HTML page:
 
 ```html
 <link rel="stylesheet" href="css/style.css">
-<script src="js/split.js" defer></script>
+<script src="js/big-chords.js" defer></script>
 
 <pre data-chord-lines>C                 F      C
 Twinkle, twinkle, little star,
@@ -69,7 +69,7 @@ For example, set defaults on the script and choose German display notation for o
 
 ```html
 <script
-  src="../js/split.js"
+  src="../js/big-chords.js"
   defer
   data-notation-system="auto"
   data-enharmonic-preference="as-is"
@@ -144,7 +144,7 @@ Examples are in the `samples/` directory:
 - [The One Horse Open Sleigh — full example](samples/one-horse-open-sleigh.html), with all three settings configurable: chord size, enharmonic spelling, and displayed notation system.
 - [The One Horse Open Sleigh — German notation preset](samples/one-horse-open-sleigh-german.html), with German display notation selected through a `data-` attribute.
 
-For pages in `samples/`, use the paths `../css/style.css` and `../js/split.js`.
+For pages in `samples/`, use the paths `../css/style.css` and `../js/big-chords.js`.
 
 ## Troubleshooting
 
