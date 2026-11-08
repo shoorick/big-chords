@@ -77,29 +77,43 @@
   });
 
   const sizeControl = document.querySelector(".chord-size-control");
-  const sizeOutput = sizeControl?.querySelector("output");
-  if (sizeControl && sizeOutput) {
-    const initialSize = Number.parseInt(sizeOutput.textContent, 10);
-    const size = Number.isInteger(initialSize) ? Math.min(6, Math.max(1, initialSize)) : 2;
-    sizeOutput.textContent = String(size);
-    song.style.setProperty("--chord-size", `${size}em`);
+  if (sizeControl) {
+    const setChordSize = (value) => {
+      const parsedSize = Number.parseInt(value, 10);
+      const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
+      song.style.setProperty("--chord-size", `${size}em`);
+      return size;
+    };
+    const sizeRadios = sizeControl.querySelectorAll('input[name="chord-size"]');
 
-    sizeControl.addEventListener("click", (event) => {
-      const button = event.target.closest("button");
-      if (!button || !sizeControl.contains(button)) return;
+    if (sizeRadios.length > 0) {
+      const selectedSize = sizeControl.querySelector('input[name="chord-size"]:checked');
+      setChordSize(selectedSize?.value ?? 2);
+      sizeControl.addEventListener("change", (event) => {
+        if (event.target.name === "chord-size") setChordSize(event.target.value);
+      });
+    } else {
+      const sizeOutput = sizeControl.querySelector("output");
+      if (!sizeOutput) return;
 
-      const change = button.id === "chord-size-increase"
-        ? 1
-        : button.id === "chord-size-decrease"
-          ? -1
-          : 0;
-      if (change === 0) return;
+      const size = setChordSize(sizeOutput.textContent);
+      sizeOutput.textContent = String(size);
+      sizeControl.addEventListener("click", (event) => {
+        const button = event.target.closest("button");
+        if (!button || !sizeControl.contains(button)) return;
 
-      const currentSize = Number.parseInt(sizeOutput.textContent, 10);
-      const nextSize = Math.min(6, Math.max(1, currentSize + change));
-      sizeOutput.textContent = String(nextSize);
-      song.style.setProperty("--chord-size", `${nextSize}em`);
-    });
+        const change = button.id === "chord-size-increase"
+          ? 1
+          : button.id === "chord-size-decrease"
+            ? -1
+            : 0;
+        if (change === 0) return;
+
+        const currentSize = Number.parseInt(sizeOutput.textContent, 10);
+        const nextSize = setChordSize(currentSize + change);
+        sizeOutput.textContent = String(nextSize);
+      });
+    }
   }
 
   function addFragment(row, chord, lyric) {

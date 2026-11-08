@@ -12,12 +12,15 @@
     <p>Words and music by James Lord Pierpont (1857).</p>
 
     <div class="song-controls">
-      <div class="chord-size-control">
-        Chord size
-        <button type="button" id="chord-size-decrease" aria-label="Shrink chords">−</button>
-        <output id="chord-size-value" aria-live="polite">2</output>
-        <button type="button" id="chord-size-increase" aria-label="Enlarge chords">+</button>
-      </div>
+      <fieldset class="chord-size-control">
+        <legend>Chord size</legend>
+        <label><input type="radio" name="chord-size" value="1" /> 1</label>
+        <label><input type="radio" name="chord-size" value="2" checked /> 2</label>
+        <label><input type="radio" name="chord-size" value="3" /> 3</label>
+        <label><input type="radio" name="chord-size" value="4" /> 4</label>
+        <label><input type="radio" name="chord-size" value="5" /> 5</label>
+        <label><input type="radio" name="chord-size" value="6" /> 6</label>
+      </fieldset>
       <fieldset class="enharmonic-control">
         <legend>Chord spelling</legend>
         <label>

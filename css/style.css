@@ -6,7 +6,7 @@ body {
   padding: 0 1rem;
 }
 
-.chord-size-control {
+div.chord-size-control {
   display: flex;
   align-items: center;
   gap: 0.25em;
@@ -30,8 +30,16 @@ body {
   padding: 0.25em 0.75em 0.5em;
 }
 
+.chord-size-control label,
 .enharmonic-control label {
   white-space: nowrap;
+}
+
+fieldset.chord-size-control {
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin: 0;
+  padding: 0.25em 0.75em 0.5em;
 }
 
 .chord-size-control button {
