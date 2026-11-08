@@ -7,7 +7,7 @@
     : document.querySelector("pre[data-chord-lines]");
   if (!source) {
     if (typeof module !== "undefined" && module.exports) {
-      module.exports = { detectNotationSystem };
+      module.exports = { detectNotationSystem, parseChord };
     }
     return;
   }
