@@ -424,8 +424,11 @@
       case "#":
         return "♯";
       case "b":
+      case "ｂ":
       case "Ь":
       case "ь":
+      case "ხ":
+      case "Ხ":
         return "♭";
       default:
         return accidental;
