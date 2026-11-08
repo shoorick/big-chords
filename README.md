@@ -82,6 +82,50 @@ For example, set defaults on the script and choose German display notation for o
 Example lyrics</pre>
 ```
 
+## Controls
+
+It is possible to use radio buttons to control all parameters listed above:
+
+```html
+<div class="song-controls">
+  <fieldset class="chord-size-control">
+    <legend>Chord size</legend>
+    <label><input type="radio" name="chord-size"> 1</label>
+    <label><input type="radio" name="chord-size" checked> 2</label>
+    <label><input type="radio" name="chord-size"> 3</label>
+    <label><input type="radio" name="chord-size"> 4</label>
+    <label><input type="radio" name="chord-size"> 5</label>
+    <label><input type="radio" name="chord-size"> 6</label>
+  </fieldset>
+  <fieldset class="enharmonic-control">
+    <legend>Chord spelling</legend>
+    <label>
+      <input type="radio" name="enharmonic-preference" value="flats">
+      ♭
+    </label>
+    <label>
+      <input type="radio" name="enharmonic-preference" value="as-is" checked>
+      as is
+    </label>
+    <label>
+      <input type="radio" name="enharmonic-preference" value="sharps">
+      ♯
+    </label>
+  </fieldset>
+  <fieldset class="notation-system-control">
+    <legend>Notation system</legend>
+    <label>
+      <input type="radio" name="display-notation-system" value="english" checked>
+      English (B♭)
+    </label>
+    <label>
+      <input type="radio" name="display-notation-system" value="german">
+      German (H)
+    </label>
+  </fieldset>
+</div>
+```
+
 ## Examples
 
 Examples are in the `samples/` directory:
