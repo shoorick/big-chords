@@ -65,8 +65,6 @@ Set options on the `<script>` element to provide defaults, or on a specific `<pr
 - `data-display-notation-system`: which note-name system to use when displaying chords; `english` or `german`.
 - `data-chord-size`: initial chord size, from `1` to `6`.
 
-Chord-size radio buttons may omit `value`; when they do, the script reads the size (`1`–`6`) from the text in the wrapping `<label>`.
-
 For example, set defaults on the script and choose German display notation for one chord sheet:
 
 ```html
@@ -84,7 +82,7 @@ Example lyrics</pre>
 
 ## Controls
 
-It is possible to use radio buttons to control all parameters listed above:
+It is possible to use radio buttons to control all parameters listed above. Chord-size radio buttons may omit `value`; when they do, the script reads the size (`1`–`6`) from the text in the wrapping `<label>`.
 
 ```html
 <div class="song-controls">
