@@ -87,6 +87,8 @@
     const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
     return chord
       .replace(/^([АВСЕН])/, (_, letter) => lookalikes[letter])
-      .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`);
+      .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`)
+      .replace(/[Ьь]/g, "♭")
+      .replace(/([A-Z])b/g, "$1♭");
   }
 })();
