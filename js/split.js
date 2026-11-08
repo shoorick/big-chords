@@ -13,7 +13,7 @@
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
     const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => ({
-      chord: match[0],
+      chord: normalizeChord(match[0]),
       column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
     }));
 
@@ -81,5 +81,12 @@
     fragment.append(lyricElement);
 
     row.append(fragment);
+  }
+
+  function normalizeChord(chord) {
+    const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
+    return chord
+      .replace(/^([АВСЕН])/, (_, letter) => lookalikes[letter])
+      .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`);
   }
 })();
