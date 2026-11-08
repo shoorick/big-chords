@@ -25,6 +25,58 @@ div.chord-size-control {
   white-space: nowrap;
 }
 
+.song-controls.button-like fieldset,
+.song-controls fieldset.button-like {
+  gap: 0;
+}
+
+.song-controls.button-like fieldset > label,
+.song-controls fieldset.button-like > label {
+  position: relative;
+  margin-left: -1px;
+  padding: 0.1em 0.5em;
+  border: 1px solid maroon;
+  background: #fff;
+  color: maroon;
+  cursor: pointer;
+}
+
+.song-controls.button-like fieldset > label:first-of-type,
+.song-controls fieldset.button-like > label:first-of-type {
+  margin-left: 0;
+  border-radius: 0.25em 0 0 0.25em;
+}
+
+.song-controls.button-like fieldset > label:last-of-type,
+.song-controls fieldset.button-like > label:last-of-type {
+  border-radius: 0 0.25em 0.25em 0;
+}
+
+.song-controls.button-like fieldset > label:has(input[type="radio"]:checked),
+.song-controls fieldset.button-like > label:has(input[type="radio"]:checked) {
+  background: maroon;
+  color: #fff;
+}
+
+.song-controls.button-like fieldset > label input[type="radio"],
+.song-controls fieldset.button-like > label input[type="radio"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.song-controls.button-like fieldset > label:has(input[type="radio"]:focus-visible),
+.song-controls fieldset.button-like > label:has(input[type="radio"]:focus-visible) {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+  z-index: 1;
+}
+
 .enharmonic-control,
 .notation-system-control,
 fieldset.chord-size-control {

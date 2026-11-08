@@ -125,6 +125,17 @@ It is possible to use radio buttons to control all parameters listed above:
   </fieldset>
 </div>
 ```
+![Radio buttons](radio-buttons.png)
+
+Add class `button-like` to `div.song-controls` to display all its radio groups as segmented button groups, or add it to an individual `fieldset` to style only that group.
+```html
+<div class="song-controls button-like">
+  <fieldset class="chord-size-control">
+    <legend>Chord size</legend>
+    <label><input type="radio" name="chord-size">1</label>
+```
+![Segmented button group](segmented-button-group.png)
+
 
 ## Examples
 
