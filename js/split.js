@@ -89,6 +89,7 @@
       .replace(/^([АВСЕН])/, (_, letter) => lookalikes[letter])
       .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`)
       .replace(/[Ьь]/g, "♭")
-      .replace(/([A-Z])b/g, "$1♭");
+      .replace(/([A-Z])b/g, "$1♭")
+      .replace(/#/g, "♯");
   }
 })();
