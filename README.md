@@ -23,7 +23,7 @@ Add the script and stylesheet to an HTML page containing a chord sheet, then ope
 Link the stylesheet and script from an HTML page:
 
 ```html
-<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/style.css">
 <script src="js/split.js" defer></script>
 
 <pre data-chord-lines>C                 F      C
