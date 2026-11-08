@@ -24,14 +24,17 @@
   const notationSystem = CHORD_NOTATION_SYSTEM === "auto"
     ? detectedNotationSystem
     : CHORD_NOTATION_SYSTEM;
+  const enharmonicPreference = getEnharmonicPreference();
+  const chordElements = [];
 
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
     const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => {
       const parsed = parseChord(match[0], notationSystem);
       return {
+        parsed,
         chord: parsed
-          ? respellChord(parsed, CHORD_ENHARMONIC_PREFERENCE)
+          ? respellChord(parsed, enharmonicPreference)
           : match[0],
         column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
       };
@@ -47,7 +50,8 @@
       }
 
       const nextColumn = chords[chordIndex + 1]?.column ?? lyricLine.length;
-      addFragment(row, item.chord, lyricLine.slice(item.column, nextColumn).join(""));
+      const chordElement = addFragment(row, item.chord, lyricLine.slice(item.column, nextColumn).join(""));
+      if (item.parsed) chordElements.push({ element: chordElement, parsed: item.parsed });
       cursor = Math.max(cursor, nextColumn);
     }
 
@@ -61,6 +65,16 @@
   }
 
   source.replaceWith(song);
+
+  const enharmonicControl = document.querySelector(".enharmonic-control");
+  enharmonicControl?.addEventListener("change", (event) => {
+    if (event.target.name !== "enharmonic-preference") return;
+
+    const preference = getEnharmonicPreference();
+    for (const { element, parsed } of chordElements) {
+      element.textContent = respellChord(parsed, preference);
+    }
+  });
 
   const sizeControl = document.querySelector(".chord-size-control");
   const sizeOutput = sizeControl?.querySelector("output");
@@ -101,6 +115,14 @@
     fragment.append(lyricElement);
 
     row.append(fragment);
+    return chordElement;
+  }
+
+  function getEnharmonicPreference() {
+    const selected = document.querySelector('input[name="enharmonic-preference"]:checked')?.value;
+    return ["sharps", "flats", "as-is"].includes(selected)
+      ? selected
+      : CHORD_ENHARMONIC_PREFERENCE;
   }
 
   function parseChord(source, system) {

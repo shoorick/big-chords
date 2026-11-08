@@ -10,27 +10,44 @@
   <body>
     <h1>Jingle Bells</h1>
     <p>Words and music by James Lord Pierpont (1857).</p>
-    <div class="chord-size-control">
-      Chord size
-      <button
-        type="button"
-        id="chord-size-decrease"
-        aria-label="Shrink chords">
-        −
-      </button>
-      <output id="chord-size-value" aria-live="polite">2</output>
-      <button
-        type="button"
-        id="chord-size-increase"
-        aria-label="Enlarge chords">
-        +
-      </button>
+    <div class="song-controls">
+      <div class="chord-size-control">
+        Chord size
+        <button
+          type="button"
+          id="chord-size-decrease"
+          aria-label="Shrink chords">
+          −
+        </button>
+        <output id="chord-size-value" aria-live="polite">2</output>
+        <button
+          type="button"
+          id="chord-size-increase"
+          aria-label="Enlarge chords">
+          +
+        </button>
+      </div>
+      <fieldset class="enharmonic-control">
+        <legend>Chord spelling</legend>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="sharps" />
+          Prefer sharps
+        </label>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="flats" />
+          Prefer flats
+        </label>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="as-is" checked />
+          As written
+        </label>
+      </fieldset>
     </div>
     <pre data-chord-lines>.
 [Verse]
 G                              G              C
 Dashing through the snow, in a one-horse open sleigh,
-Am                 D7                   G
+Am                 D7/F#                G
 O'er the fields we go, laughing all the way.
 G                        G              C
 Bells on bob-tails ring, making spirits bright,
