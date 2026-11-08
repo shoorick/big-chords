@@ -34,7 +34,7 @@
       return {
         parsed,
         chord: parsed
-          ? respellChord(parsed, enharmonicPreference)
+          ? respellChord(parsed, enharmonicPreference, getDisplayNotationSystem())
           : match[0],
         column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
       };
@@ -66,15 +66,21 @@
 
   source.replaceWith(song);
 
-  const enharmonicControl = document.querySelector(".enharmonic-control");
-  enharmonicControl?.addEventListener("change", (event) => {
-    if (event.target.name !== "enharmonic-preference") return;
-
+  const refreshChordSpellings = () => {
     const preference = getEnharmonicPreference();
+    const displaySystem = getDisplayNotationSystem();
     for (const { element, parsed } of chordElements) {
-      element.textContent = respellChord(parsed, preference);
+      element.textContent = respellChord(parsed, preference, displaySystem);
     }
-  });
+  };
+
+  for (const control of document.querySelectorAll(".enharmonic-control, .notation-system-control")) {
+    control.addEventListener("change", (event) => {
+      if (["enharmonic-preference", "display-notation-system"].includes(event.target.name)) {
+        refreshChordSpellings();
+      }
+    });
+  }
 
   const sizeControl = document.querySelector(".chord-size-control");
   if (sizeControl) {
@@ -139,6 +145,11 @@
       : CHORD_ENHARMONIC_PREFERENCE;
   }
 
+  function getDisplayNotationSystem() {
+    const selected = document.querySelector('input[name="display-notation-system"]:checked')?.value;
+    return ["english", "german"].includes(selected) ? selected : null;
+  }
+
   function parseChord(source, system) {
     const parts = source.split("/");
     if (parts.length > 2) return null;
@@ -172,16 +183,30 @@
     return { source, root, quality, bass, normalized, notationSystem: system };
   }
 
-  function respellChord(chord, preference) {
+  function respellChord(chord, preference, displaySystem = chord?.notationSystem) {
     if (!chord) return null;
-    if (preference === "as-is") return chord.normalized;
+    if (preference === "as-is") {
+      const root = formatNoteForSystem(chord.root, displaySystem);
+      const bass = chord.bass ? formatNoteForSystem(chord.bass, displaySystem) : null;
+      return `${root}${chord.quality}${bass ? `/${bass}` : ""}`;
+    }
     if (preference !== "sharps" && preference !== "flats") return chord.normalized;
 
-    const root = respellNote(chord.root, preference, chord.notationSystem);
+    const system = displaySystem ?? chord.notationSystem;
+    const root = respellNote(chord.root, preference, system);
     const bass = chord.bass
-      ? respellNote(chord.bass, preference, chord.notationSystem)
+      ? respellNote(chord.bass, preference, system)
       : null;
     return `${root}${chord.quality}${bass ? `/${bass}` : ""}`;
+  }
+
+  function formatNoteForSystem(note, system) {
+    if (note.pitchClass === null || !["english", "german"].includes(system)) {
+      return formatNote(note);
+    }
+    if (note.pitchClass === 10) return system === "german" ? "B" : "B♭";
+    if (note.pitchClass === 11) return system === "german" ? "H" : "B";
+    return formatNote(note);
   }
 
   function respellNote(note, preference, system) {

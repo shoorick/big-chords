@@ -21,7 +21,8 @@ div.chord-size-control {
   margin: 1em 0;
 }
 
-.enharmonic-control {
+.enharmonic-control,
+.notation-system-control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -31,7 +32,8 @@ div.chord-size-control {
 }
 
 .chord-size-control label,
-.enharmonic-control label {
+.enharmonic-control label,
+.notation-system-control label {
   white-space: nowrap;
 }
 
