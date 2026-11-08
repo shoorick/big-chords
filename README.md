@@ -54,7 +54,7 @@ Optionally, add a chord-size control:
 ```
 The result looks like this:
 
-![Formatted page](twinkle.png)
+![Formatted page](images/twinkle.png)
 
 ## Data attributes
 
@@ -125,7 +125,7 @@ It is possible to use radio buttons to control all parameters listed above:
   </fieldset>
 </div>
 ```
-![Radio buttons](radio-buttons.png)
+![Radio buttons](images/radio-buttons.png)
 
 Add class `button-like` to `div.song-controls` to display all its radio groups as segmented button groups, or add it to an individual `fieldset` to style only that group.
 ```html
@@ -134,7 +134,7 @@ Add class `button-like` to `div.song-controls` to display all its radio groups a
     <legend>Chord size</legend>
     <label><input type="radio" name="chord-size">1</label>
 ```
-![Segmented button group](segmented-button-group.png)
+![Segmented button group](images/segmented-button-group.png)
 
 
 ## Examples
