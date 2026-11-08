@@ -176,6 +176,10 @@ To open the page in a browser on the same phone, set **Network interface** to `l
 
 After starting the server from the project root, open http://localhost:8000/samples/jingle-bells.html in your browser.
 
+## Support the project
+
+If you find this project useful, you can support its development via [PayPal](https://paypal.me/shoorick77).
+
 ## Available on GitHub
 
 The project is hosted at [github.com/shoorick/big-chords](https://github.com/shoorick/big-chords).
