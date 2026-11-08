@@ -4,7 +4,9 @@
 
 Cyrillic `А`, `В`, `С`, `Е`, and `Н` are converted to Latin `A`, `B`, `C`, `E`, and `H` at the start of a chord and after `/`. Within chord tokens, Cyrillic soft signs (`Ь`/`ь`) and lowercase Latin `b` after an uppercase Latin letter become `♭`, and `#` becomes `♯`.
 
-The parser separates a chord into its root note, quality suffix, and optional bass note after `/`. It returns `source`, `root` (`letter` and `accidental`), `quality`, `bass` (or `null`), and `normalized` fields. It normalizes root and bass accidentals while preserving the quality suffix apart from symbol normalization. Tokens with an unrecognized root or bass are displayed as written. `B` and `H` remain separate note letters; their pitch meanings depend on the notation system and are not inferred yet.
+The parser separates a chord into its root note, quality suffix, and optional bass note after `/`. It returns `source`, `root` (`letter`, `accidental`, and `pitchClass`), `quality`, `bass` (or `null`), `normalized`, and `notationSystem` fields. Tokens with an unrecognized root or bass are displayed as written.
+
+Set `CHORD_NOTATION_SYSTEM` in `js/split.js` to `"english"`, `"german"`, or `"auto"`. English notation treats `B` as B natural; German notation treats `B` as B-flat and `H` as B natural. In automatic mode, an `H` root or bass selects German notation, while a B-flat root or bass selects English notation. If neither clue appears, or both appear, the system remains unresolved; `B` and `H` then have no `pitchClass` until a system is selected manually.
 
 ## How to use it
 

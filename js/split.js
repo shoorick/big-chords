@@ -1,6 +1,7 @@
 (() => {
   "use strict";
 
+  const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
   const source = document.querySelector("pre[data-chord-lines]");
   if (!source) return;
 
@@ -9,13 +10,22 @@
 
   const lines = source.textContent.replace(/\r\n?/g, "\n").split("\n");
   if (lines.at(-1) === "") lines.pop();
+  const detectedNotationSystem = detectNotationSystem(
+    lines.filter((_, index) => index % 2 === 0),
+  );
+  const notationSystem = CHORD_NOTATION_SYSTEM === "auto"
+    ? detectedNotationSystem
+    : CHORD_NOTATION_SYSTEM;
 
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
-    const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => ({
-      chord: parseChord(match[0])?.normalized ?? match[0],
-      column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
-    }));
+    const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => {
+      const parsed = parseChord(match[0], notationSystem);
+      return {
+        chord: parsed?.normalized ?? match[0],
+        column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
+      };
+    });
 
     const row = document.createElement("article");
     row.className = "song-line";
@@ -83,7 +93,7 @@
     row.append(fragment);
   }
 
-  function parseChord(source) {
+  function parseChord(source, system) {
     const parts = source.split("/");
     if (parts.length > 2) return null;
 
@@ -99,6 +109,7 @@
       letter: normalizeNoteLetter(rootMatch[1]),
       accidental: normalizeAccidental(rootMatch[2]),
     };
+    root.pitchClass = getPitchClass(root, system);
     const quality = rootMatch[3]
       .replace(/[Ьь]/g, "♭")
       .replace(/#/g, "♯")
@@ -109,9 +120,44 @@
           accidental: normalizeAccidental(bassMatch[2]),
         }
       : null;
+    if (bass) bass.pitchClass = getPitchClass(bass, system);
 
     const normalized = `${formatNote(root)}${quality}${bass ? `/${formatNote(bass)}` : ""}`;
-    return { source, root, quality, bass, normalized };
+    return { source, root, quality, bass, normalized, notationSystem: system };
+  }
+
+  function detectNotationSystem(chordLines) {
+    let hasH = false;
+    let hasBFlat = false;
+
+    for (const line of chordLines) {
+      for (const match of line.matchAll(/\S+/g)) {
+        const chord = parseChord(match[0], null);
+        if (!chord) continue;
+
+        for (const note of [chord.root, chord.bass]) {
+          if (!note) continue;
+          if (note.letter === "H") hasH = true;
+          if (note.letter === "B" && note.accidental === "♭") hasBFlat = true;
+        }
+      }
+    }
+
+    if (hasH === hasBFlat) return null;
+    return hasH ? "german" : "english";
+  }
+
+  function getPitchClass(note, system) {
+    const naturalPitchClasses = { A: 9, B: 11, C: 0, D: 2, E: 4, F: 5, G: 7, H: null };
+    if (note.letter === "B" && system === "german") naturalPitchClasses.B = 10;
+    if (note.letter === "H" && system === "german") naturalPitchClasses.H = 11;
+    if (note.letter === "B" && system === null) return null;
+
+    const naturalPitchClass = naturalPitchClasses[note.letter];
+    if (naturalPitchClass === null || naturalPitchClass === undefined) return null;
+
+    const accidentalOffset = note.accidental === "♯" ? 1 : note.accidental === "♭" ? -1 : 0;
+    return (naturalPitchClass + accidentalOffset + 12) % 12;
   }
 
   function normalizeNoteLetter(letter) {
