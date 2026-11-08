@@ -4,6 +4,8 @@
 
 Cyrillic `А`, `В`, `С`, `Е`, and `Н` are converted to Latin `A`, `B`, `C`, `E`, and `H` at the start of a chord and after `/`. Within chord tokens, Cyrillic soft signs (`Ь`/`ь`) and lowercase Latin `b` after an uppercase Latin letter become `♭`, and `#` becomes `♯`.
 
+The parser separates a chord into its root note, quality suffix, and optional bass note after `/`. It returns `source`, `root` (`letter` and `accidental`), `quality`, `bass` (or `null`), and `normalized` fields. It normalizes root and bass accidentals while preserving the quality suffix apart from symbol normalization. Tokens with an unrecognized root or bass are displayed as written. `B` and `H` remain separate note letters; their pitch meanings depend on the notation system and are not inferred yet.
+
 ## How to use it
 
 Add the script and stylesheet to an HTML page containing a chord sheet, then open the page in a browser.

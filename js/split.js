@@ -13,7 +13,7 @@
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
     const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => ({
-      chord: normalizeChord(match[0]),
+      chord: parseChord(match[0])?.normalized ?? match[0],
       column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
     }));
 
@@ -83,13 +83,49 @@
     row.append(fragment);
   }
 
-  function normalizeChord(chord) {
-    const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
-    return chord
-      .replace(/^([АВСЕН])/, (_, letter) => lookalikes[letter])
-      .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`)
+  function parseChord(source) {
+    const parts = source.split("/");
+    if (parts.length > 2) return null;
+
+    const rootMatch = parts[0].match(/^([A-HАВСЕН])([#♯b♭Ьь]?)(.*)$/u);
+    if (!rootMatch || /^[#♯b♭Ьь]/u.test(rootMatch[3])) return null;
+
+    const bassMatch = parts.length === 2
+      ? parts[1].match(/^([A-HАВСЕН])([#♯b♭Ьь]?)$/u)
+      : null;
+    if (parts.length === 2 && !bassMatch) return null;
+
+    const root = {
+      letter: normalizeNoteLetter(rootMatch[1]),
+      accidental: normalizeAccidental(rootMatch[2]),
+    };
+    const quality = rootMatch[3]
       .replace(/[Ьь]/g, "♭")
-      .replace(/([A-Z])b/g, "$1♭")
-      .replace(/#/g, "♯");
+      .replace(/#/g, "♯")
+      .replace(/([A-Z])b/g, "$1♭");
+    const bass = bassMatch
+      ? {
+          letter: normalizeNoteLetter(bassMatch[1]),
+          accidental: normalizeAccidental(bassMatch[2]),
+        }
+      : null;
+
+    const normalized = `${formatNote(root)}${quality}${bass ? `/${formatNote(bass)}` : ""}`;
+    return { source, root, quality, bass, normalized };
+  }
+
+  function normalizeNoteLetter(letter) {
+    const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
+    return lookalikes[letter] ?? letter;
+  }
+
+  function normalizeAccidental(accidental) {
+    if (accidental === "#") return "♯";
+    if (accidental === "b" || accidental === "Ь" || accidental === "ь") return "♭";
+    return accidental;
+  }
+
+  function formatNote(note) {
+    return `${note.letter}${note.accidental}`;
   }
 })();
