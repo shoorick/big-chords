@@ -1,6 +1,6 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { detectNotationSystem, parseChord } = require("../js/split.js");
+const { detectNotationSystem, parseChord, respellChord } = require("../js/split.js");
 
 test("parses common Latin chord symbols and preserves their quality suffixes", () => {
   const examples = [
@@ -97,4 +97,54 @@ test("rejects unsupported roots and malformed slash basses", () => {
   assert.equal(parseChord("C/Gm", "english"), null);
   assert.equal(parseChord("C/G/B", "english"), null);
   assert.equal(parseChord("C##", "english"), null);
+});
+
+test("keeps the normalized source spelling when preference is as-is", () => {
+  const chord = parseChord("C#", "english");
+
+  assert.equal(respellChord(chord, "as-is"), "C♯");
+});
+
+test("respells a root to sharp or flat preference", () => {
+  const chord = parseChord("C#", "english");
+
+  assert.equal(respellChord(chord, "sharps"), "C♯");
+  assert.equal(respellChord(chord, "flats"), "D♭");
+});
+
+test("respells both root and slash bass while preserving chord quality", () => {
+  const chord = parseChord("F#m7/A#", "english");
+
+  assert.equal(respellChord(chord, "flats"), "G♭m7/B♭");
+  assert.equal(respellChord(chord, "sharps"), "F♯m7/A♯");
+});
+
+test("uses English B semantics when choosing enharmonic spellings", () => {
+  const chord = parseChord("B", "english");
+
+  assert.equal(respellChord(chord, "sharps"), "B");
+  assert.equal(respellChord(chord, "flats"), "B");
+});
+
+test("uses German B and H semantics when choosing enharmonic spellings", () => {
+  const germanB = parseChord("B", "german");
+  const germanH = parseChord("H", "german");
+
+  assert.equal(respellChord(germanB, "sharps"), "A♯");
+  assert.equal(respellChord(germanB, "flats"), "B");
+  assert.equal(respellChord(germanH, "sharps"), "H");
+  assert.equal(respellChord(germanH, "flats"), "H");
+});
+
+test("leaves B and H unchanged if automatic notation is unresolved", () => {
+  const system = detectNotationSystem(["C", "B"]);
+
+  assert.equal(respellChord(parseChord("B", system), "sharps"), "B");
+  assert.equal(respellChord(parseChord("H", system), "flats"), "H");
+  assert.equal(respellChord(parseChord("C#", system), "flats"), "D♭");
+});
+
+test("returns null for an unparsed chord and ignores unknown preferences", () => {
+  assert.equal(respellChord(null, "sharps"), null);
+  assert.equal(respellChord(parseChord("C#", "english"), "other"), "C♯");
 });

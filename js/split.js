@@ -2,12 +2,13 @@
   "use strict";
 
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
+  const CHORD_ENHARMONIC_PREFERENCE = "as-is"; // "sharps", "flats", or "as-is"
   const source = typeof document === "undefined"
     ? null
     : document.querySelector("pre[data-chord-lines]");
   if (!source) {
     if (typeof module !== "undefined" && module.exports) {
-      module.exports = { detectNotationSystem, parseChord };
+      module.exports = { detectNotationSystem, parseChord, respellChord };
     }
     return;
   }
@@ -29,7 +30,9 @@
     const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => {
       const parsed = parseChord(match[0], notationSystem);
       return {
-        chord: parsed?.normalized ?? match[0],
+        chord: parsed
+          ? respellChord(parsed, CHORD_ENHARMONIC_PREFERENCE)
+          : match[0],
         column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
       };
     });
@@ -131,6 +134,33 @@
 
     const normalized = `${formatNote(root)}${quality}${bass ? `/${formatNote(bass)}` : ""}`;
     return { source, root, quality, bass, normalized, notationSystem: system };
+  }
+
+  function respellChord(chord, preference) {
+    if (!chord) return null;
+    if (preference === "as-is") return chord.normalized;
+    if (preference !== "sharps" && preference !== "flats") return chord.normalized;
+
+    const root = respellNote(chord.root, preference, chord.notationSystem);
+    const bass = chord.bass
+      ? respellNote(chord.bass, preference, chord.notationSystem)
+      : null;
+    return `${root}${chord.quality}${bass ? `/${bass}` : ""}`;
+  }
+
+  function respellNote(note, preference, system) {
+    if (note.pitchClass === null) return formatNote(note);
+
+    const germanNames = {
+      sharps: ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "H"],
+      flats: ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B", "H"],
+    };
+    const englishNames = {
+      sharps: ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"],
+      flats: ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"],
+    };
+    const names = system === "german" ? germanNames : englishNames;
+    return names[preference][note.pitchClass];
   }
 
   function detectNotationSystem(chordLines) {
