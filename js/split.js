@@ -2,8 +2,15 @@
   "use strict";
 
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
-  const source = document.querySelector("pre[data-chord-lines]");
-  if (!source) return;
+  const source = typeof document === "undefined"
+    ? null
+    : document.querySelector("pre[data-chord-lines]");
+  if (!source) {
+    if (typeof module !== "undefined" && module.exports) {
+      module.exports = { detectNotationSystem };
+    }
+    return;
+  }
 
   const song = document.createElement("section");
   song.className = "song";
