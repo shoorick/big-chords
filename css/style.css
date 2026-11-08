@@ -1,5 +1,19 @@
+:root {
+  --accent-color: #900;
+  --background-color: #fff;
+  --text-color: #000;
+  --button-color: #111;
+  --button-label-color: #666;
+  --control-inline-padding: 0.5em;
+  --button-group-radius: 0.25em;
+  --body-font-family: "Open Sans", sans-serif;
+  --chord-font-family: Montserrat, sans-serif;
+}
+
 body {
-  font-family: "Open Sans", sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--body-font-family);
   line-height: 1.5;
   margin: 2rem auto;
   max-width: 48rem;
@@ -10,7 +24,7 @@ div.chord-size-control {
   display: flex;
   align-items: center;
   gap: 0.25em;
-  color: #666;
+  color: var(--button-label-color);
 }
 
 .song-controls {
@@ -34,28 +48,28 @@ div.chord-size-control {
 .song-controls fieldset.button-like > label {
   position: relative;
   margin-left: -1px;
-  padding: 0.1em 0.5em;
-  border: 1px solid maroon;
-  background: #fff;
-  color: maroon;
+  padding: 0.1em var(--control-inline-padding);
+  border: 1px solid var(--accent-color);
+  background: var(--background-color);
+  color: var(--accent-color);
   cursor: pointer;
 }
 
 .song-controls.button-like fieldset > label:first-of-type,
 .song-controls fieldset.button-like > label:first-of-type {
   margin-left: 0;
-  border-radius: 0.25em 0 0 0.25em;
+  border-radius: var(--button-group-radius) 0 0 var(--button-group-radius);
 }
 
 .song-controls.button-like fieldset > label:last-of-type,
 .song-controls fieldset.button-like > label:last-of-type {
-  border-radius: 0 0.25em 0.25em 0;
+  border-radius: 0 var(--button-group-radius) var(--button-group-radius) 0;
 }
 
 .song-controls.button-like fieldset > label:has(input[type="radio"]:checked),
 .song-controls fieldset.button-like > label:has(input[type="radio"]:checked) {
-  background: maroon;
-  color: #fff;
+  background: var(--accent-color);
+  color: var(--background-color);
 }
 
 .song-controls.button-like fieldset > label input[type="radio"],
@@ -72,7 +86,7 @@ div.chord-size-control {
 
 .song-controls.button-like fieldset > label:has(input[type="radio"]:focus-visible),
 .song-controls fieldset.button-like > label:has(input[type="radio"]:focus-visible) {
-  outline: 2px solid #111;
+  outline: 2px solid var(--button-color);
   outline-offset: 2px;
   z-index: 1;
 }
@@ -89,7 +103,7 @@ fieldset.chord-size-control {
 }
 
 .chord-size-control button {
-  padding: 0 0.5em;
+  padding: 0 var(--control-inline-padding);
   font-size: 2em;
   line-height: 1;
 }
@@ -101,7 +115,6 @@ fieldset.chord-size-control {
 }
 
 .song {
-  color: #111;
   box-sizing: border-box;
   max-width: 100%;
 }
@@ -118,8 +131,8 @@ fieldset.chord-size-control {
 }
 
 .song-fragment em {
-  color: #900;
-  font-family: Montserrat, sans-serif;
+  color: var(--accent-color);
+  font-family: var(--chord-font-family);
   font-size: var(--chord-size, 2em);
   font-style: normal;
   line-height: 1;
