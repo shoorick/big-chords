@@ -313,9 +313,16 @@
   }
 
   function normalizeAccidental(accidental) {
-    if (accidental === "#") return "♯";
-    if (accidental === "b" || accidental === "Ь" || accidental === "ь") return "♭";
-    return accidental;
+    switch (accidental) {
+      case "#":
+        return "♯";
+      case "b":
+      case "Ь":
+      case "ь":
+        return "♭";
+      default:
+        return accidental;
+    }
   }
 
   function formatNote(note) {
