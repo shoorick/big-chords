@@ -1,6 +1,25 @@
 (() => {
   "use strict";
 
+  /** @typedef {"english" | "german" | null} NotationSystem */
+  /** @typedef {"english" | "german"} DisplayNotationSystem */
+  /** @typedef {"sharps" | "flats" | "as-is"} EnharmonicPreference */
+  /**
+   * @typedef {Object} ParsedNote
+   * @property {string} letter Normalized Latin note letter.
+   * @property {string} accidental Normalized accidental, if present.
+   * @property {number | null} pitchClass Semitone number from C, or null if unresolved.
+   */
+  /**
+   * @typedef {Object} ParsedChord
+   * @property {string} source Original chord token.
+   * @property {ParsedNote} root Root note.
+   * @property {string} quality Chord quality and extensions after the root.
+   * @property {ParsedNote | null} bass Optional slash bass note.
+   * @property {string} normalized Chord with normalized note spelling.
+   * @property {NotationSystem} notationSystem System used to interpret the notes.
+   */
+
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
   const CHORD_ENHARMONIC_PREFERENCE = "as-is"; // "sharps", "flats", or "as-is"
   const scriptElement = typeof document === "undefined" ? null : document.currentScript;
@@ -90,6 +109,7 @@
 
   source.replaceWith(song);
 
+  /** Rewrites displayed chord labels using the currently selected spellings. */
   const refreshChordSpellings = () => {
     const preference = getEnharmonicPreference(configuredEnharmonicPreference);
     const displaySystem = getDisplayNotationSystem(configuredDisplayNotationSystem);
@@ -109,6 +129,11 @@
   const sizeControl = document.querySelector(".chord-size-control");
   const sizeRadios = sizeControl?.querySelectorAll('input[name="chord-size"]') ?? [];
   const sizeOutput = sizeControl?.querySelector("output");
+  /**
+   * Applies a chord font size, clamped to the supported 1–6 em range.
+   * @param {string | number} value Requested size.
+   * @returns {number} Applied size.
+   */
   const setChordSize = (value) => {
     const parsedSize = Number.parseInt(value, 10);
     const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
@@ -146,6 +171,13 @@
     }
   }
 
+  /**
+   * Adds one chord-and-lyric fragment to a rendered song line.
+   * @param {HTMLElement} row Parent line element.
+   * @param {string} chord Chord label, or an empty string for no chord.
+   * @param {string} lyric Corresponding lyric fragment.
+   * @returns {HTMLElement} The fragment's chord element.
+   */
   function addFragment(row, chord, lyric) {
     const fragment = document.createElement("div");
     fragment.className = "song-fragment";
@@ -162,6 +194,11 @@
     return chordElement;
   }
 
+  /**
+   * Reads the selected enharmonic preference, falling back to the configured default.
+   * @param {EnharmonicPreference} [fallback] Preference used when no valid radio is selected.
+   * @returns {EnharmonicPreference}
+   */
   function getEnharmonicPreference(fallback = CHORD_ENHARMONIC_PREFERENCE) {
     const selected = document.querySelector('input[name="enharmonic-preference"]:checked')?.value;
     return ["sharps", "flats", "as-is"].includes(selected)
@@ -169,6 +206,13 @@
       : fallback;
   }
 
+  /**
+   * Reads a validated setting, preferring the chord sheet's `<pre>` over the script element.
+   * @param {string} name Data-attribute name without the `data-` prefix.
+   * @param {string[]} validValues Accepted values.
+   * @param {string | null} fallback Value returned when neither element has a valid setting.
+   * @returns {string | null}
+   */
   function getDataSetting(name, validValues, fallback) {
     for (const element of [source, scriptElement]) {
       const value = element?.getAttribute(`data-${name}`);
@@ -177,6 +221,12 @@
     return fallback;
   }
 
+  /**
+   * Sets the radio matching a configured data setting, when that control exists.
+   * @param {string} name Radio group and data-attribute name.
+   * @param {string[]} validValues Accepted values.
+   * @returns {void}
+   */
   function applyDataSettingToControl(name, validValues) {
     const value = getDataSetting(name, validValues, null);
     if (value === null) return;
@@ -186,6 +236,11 @@
     if (radio) radio.checked = true;
   }
 
+  /**
+   * Gets a radio's value, inferring chord size from its label when `value` is omitted.
+   * @param {HTMLInputElement} input Radio input.
+   * @returns {string}
+   */
   function getRadioValue(input) {
     if (input.name === "chord-size" && input.value === "on") {
       const label = input.closest("label")?.textContent.trim();
@@ -194,11 +249,22 @@
     return input.value;
   }
 
+  /**
+   * Reads the selected output notation system, falling back to its configured default.
+   * @param {DisplayNotationSystem | null} [fallback]
+   * @returns {DisplayNotationSystem | null}
+   */
   function getDisplayNotationSystem(fallback = null) {
     const selected = document.querySelector('input[name="display-notation-system"]:checked')?.value;
     return ["english", "german"].includes(selected) ? selected : fallback;
   }
 
+  /**
+   * Parses a chord token into root, quality, and optional slash bass components.
+   * @param {string} source Chord token to parse.
+   * @param {NotationSystem} system Notation used to interpret B and H.
+   * @returns {ParsedChord | null} Parsed chord, or null when the token is not recognized.
+   */
   function parseChord(source, system) {
     const parts = source.split("/");
     if (parts.length > 2) return null;
@@ -232,6 +298,13 @@
     return { source, root, quality, bass, normalized, notationSystem: system };
   }
 
+  /**
+   * Returns a chord with its root and slash bass respelled as requested.
+   * @param {ParsedChord | null} chord Parsed chord.
+   * @param {EnharmonicPreference} preference Preferred accidental spelling.
+   * @param {DisplayNotationSystem | NotationSystem} [displaySystem] Note-name system for output.
+   * @returns {string | null}
+   */
   function respellChord(chord, preference, displaySystem = chord?.notationSystem) {
     if (!chord) return null;
     if (preference === "as-is") {
@@ -249,6 +322,12 @@
     return `${root}${chord.quality}${bass ? `/${bass}` : ""}`;
   }
 
+  /**
+   * Formats B-flat/B-natural according to the selected English or German notation.
+   * @param {ParsedNote} note Note to format.
+   * @param {DisplayNotationSystem | NotationSystem} system Output notation system.
+   * @returns {string} Formatted note.
+   */
   function formatNoteForSystem(note, system) {
     if (note.pitchClass === null || !["english", "german"].includes(system)) {
       return formatNote(note);
@@ -258,6 +337,13 @@
     return formatNote(note);
   }
 
+  /**
+   * Rewrites one note using the selected accidental preference and notation system.
+   * @param {ParsedNote} note Note to respell.
+   * @param {"sharps" | "flats"} preference Preferred accidental spelling.
+   * @param {DisplayNotationSystem | NotationSystem} system Output notation system.
+   * @returns {string} Respelled note.
+   */
   function respellNote(note, preference, system) {
     if (note.pitchClass === null) return formatNote(note);
 
@@ -273,6 +359,11 @@
     return names[preference][note.pitchClass];
   }
 
+  /**
+   * Detects notation from H notes or B-flat notes in chord tokens.
+   * @param {string[]} chordLines Lines containing chord tokens.
+   * @returns {NotationSystem} Detected system, or null when the clues are absent or conflict.
+   */
   function detectNotationSystem(chordLines) {
     let hasH = false;
     let hasBFlat = false;
@@ -294,6 +385,12 @@
     return hasH ? "german" : "english";
   }
 
+  /**
+   * Converts a note to a pitch class, or returns null when B/H is ambiguous.
+   * @param {ParsedNote} note Note to convert.
+   * @param {NotationSystem} system Notation used to interpret B and H.
+   * @returns {number | null} Semitone number from C, in the range 0–11.
+   */
   function getPitchClass(note, system) {
     const naturalPitchClasses = { A: 9, B: 11, C: 0, D: 2, E: 4, F: 5, G: 7, H: null };
     if (note.letter === "B" && system === "german") naturalPitchClasses.B = 10;
@@ -307,11 +404,21 @@
     return (naturalPitchClass + accidentalOffset + 12) % 12;
   }
 
+  /**
+   * Converts supported Cyrillic note lookalikes to Latin note letters.
+   * @param {string} letter Note letter to normalize.
+   * @returns {string} Normalized note letter.
+   */
   function normalizeNoteLetter(letter) {
     const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
     return lookalikes[letter] ?? letter;
   }
 
+  /**
+   * Converts textual sharp/flat spellings to Unicode accidental symbols.
+   * @param {string} accidental Accidental to normalize.
+   * @returns {string} Normalized accidental.
+   */
   function normalizeAccidental(accidental) {
     switch (accidental) {
       case "#":
@@ -325,6 +432,11 @@
     }
   }
 
+  /**
+   * Returns a note's letter and normalized accidental as a single string.
+   * @param {ParsedNote} note Note to format.
+   * @returns {string} Formatted note.
+   */
   function formatNote(note) {
     return `${note.letter}${note.accidental}`;
   }
