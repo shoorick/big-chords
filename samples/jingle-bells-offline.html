@@ -87,8 +87,7 @@ body {
         +
       </button>
     </div>
-    <pre data-chord-lines>
-.
+    <pre data-chord-lines>.
 [Verse]
 G                              G              C
 Dashing through the snow, in a one-horse open sleigh,
@@ -183,8 +182,7 @@ Jingle bells, jingle bells, jingle all the way!
 C              G
 Oh what fun it is to ride
      D7             G
-In a one-horse open sleigh!</pre
-    >
+In a one-horse open sleigh!</pre>
     <script>
 (() => {
   "use strict";
@@ -201,7 +199,7 @@ In a one-horse open sleigh!</pre
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
     const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => ({
-      chord: match[0],
+      chord: normalizeChord(match[0]),
       column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
     }));
 
@@ -234,7 +232,7 @@ In a one-horse open sleigh!</pre
   const sizeOutput = sizeControl?.querySelector("output");
   if (sizeControl && sizeOutput) {
     const initialSize = Number.parseInt(sizeOutput.textContent, 10);
-    const size = Number.isInteger(initialSize) ? Math.min(5, Math.max(1, initialSize)) : 2;
+    const size = Number.isInteger(initialSize) ? Math.min(6, Math.max(1, initialSize)) : 2;
     sizeOutput.textContent = String(size);
     song.style.setProperty("--chord-size", `${size}em`);
 
@@ -250,7 +248,7 @@ In a one-horse open sleigh!</pre
       if (change === 0) return;
 
       const currentSize = Number.parseInt(sizeOutput.textContent, 10);
-      const nextSize = Math.min(5, Math.max(1, currentSize + change));
+      const nextSize = Math.min(6, Math.max(1, currentSize + change));
       sizeOutput.textContent = String(nextSize);
       song.style.setProperty("--chord-size", `${nextSize}em`);
     });
@@ -269,6 +267,13 @@ In a one-horse open sleigh!</pre
     fragment.append(lyricElement);
 
     row.append(fragment);
+  }
+
+  function normalizeChord(chord) {
+    const lookalikes = { "А": "A", "В": "B", "С": "C", "Е": "E", "Н": "H" };
+    return chord
+      .replace(/^([АВСЕН])/, (_, letter) => lookalikes[letter])
+      .replace(/\/([АВСЕН])/, (_, letter) => `/${lookalikes[letter]}`);
   }
 })();
 
