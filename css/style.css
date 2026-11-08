@@ -21,24 +21,16 @@ div.chord-size-control {
   margin: 1em 0;
 }
 
-.enharmonic-control,
-.notation-system-control {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75em;
-  margin: 0;
-  padding: 0.25em 0.75em 0.5em;
-}
-
-.chord-size-control label,
-.enharmonic-control label,
-.notation-system-control label {
+.song-controls label {
   white-space: nowrap;
 }
 
+.enharmonic-control,
+.notation-system-control,
 fieldset.chord-size-control {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.75em;
   margin: 0;
   padding: 0.25em 0.75em 0.5em;
@@ -50,19 +42,21 @@ fieldset.chord-size-control {
   line-height: 1;
 }
 
+.song,
+.song-line {
+  width: 100%;
+  min-width: 0;
+}
+
 .song {
   color: #111;
   box-sizing: border-box;
-  width: 100%;
   max-width: 100%;
-  min-width: 0;
 }
 
 .song-line {
   display: flex;
   flex-wrap: wrap;
-  width: 100%;
-  min-width: 0;
 }
 
 .song-fragment {
@@ -79,10 +73,6 @@ fieldset.chord-size-control {
   line-height: 1;
   min-height: 1em;
   padding-right: 0.25em;
-}
-
-.song-fragment span {
-  white-space: pre;
 }
 
 .song-line + .song-line {
