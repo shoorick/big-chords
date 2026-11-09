@@ -142,3 +142,9 @@ fieldset.chord-size-control {
 .song-line + .song-line {
   margin-top: 0.4em;
 }
+
+@media print {
+  .song-controls {
+    display: none;
+  }
+}
