@@ -302,7 +302,7 @@
   }
 
   /**
-   * Gets a radio's value, inferring chord size from its label when `value` is omitted.
+   * Gets a radio's value, inferring chord size or transposition offset from its label when `value` is omitted.
    * @param {HTMLInputElement} input Radio input.
    * @returns {string}
    */
@@ -310,6 +310,10 @@
     if (input.name === "chord-size" && input.value === "on") {
       const label = input.closest("label")?.textContent.trim();
       if (/^[1-6]$/.test(label)) return label;
+    }
+    if (input.name === "transpose-semitones" && input.value === "on") {
+      const label = input.closest("label")?.textContent.trim();
+      if (/^[+-]?\d+$/.test(label)) return String(Number.parseInt(label, 10));
     }
     return input.value;
   }

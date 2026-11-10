@@ -85,7 +85,7 @@ Example lyrics</pre>
 
 ## Controls
 
-It is possible to use radio buttons to control all parameters listed above. Chord-size radio buttons may omit `value`; when they do, the script reads the size (`1`–`6`) from the text in the wrapping `<label>`.
+It is possible to use radio buttons to control all parameters listed above. Chord-size and transpose-semitones radio buttons may omit `value`; when they do, the script reads the size (`1`–`6`) or the transposition offset (an integer, typically `-11` to `+11`) from the text in the wrapping `<label>`.
 
 ```html
 <div class="song-controls">
@@ -144,19 +144,19 @@ A segmented radio group named `transpose-semitones` offers fixed offsets; `0` me
 ```html
 <fieldset class="transpose-control">
   <legend>Transpose</legend>
-  <label><input type="radio" name="transpose-semitones" value="-6">-6</label>
-  <label><input type="radio" name="transpose-semitones" value="-5">-5</label>
-  <label><input type="radio" name="transpose-semitones" value="-4">-4</label>
-  <label><input type="radio" name="transpose-semitones" value="-3">-3</label>
-  <label><input type="radio" name="transpose-semitones" value="-2">-2</label>
-  <label><input type="radio" name="transpose-semitones" value="-1">-1</label>
-  <label><input type="radio" name="transpose-semitones" value="0" checked>0</label>
-  <label><input type="radio" name="transpose-semitones" value="1">+1</label>
-  <label><input type="radio" name="transpose-semitones" value="2">+2</label>
-  <label><input type="radio" name="transpose-semitones" value="3">+3</label>
-  <label><input type="radio" name="transpose-semitones" value="4">+4</label>
-  <label><input type="radio" name="transpose-semitones" value="5">+5</label>
-  <label><input type="radio" name="transpose-semitones" value="6">+6</label>
+  <label><input type="radio" name="transpose-semitones">-6</label>
+  <label><input type="radio" name="transpose-semitones">-5</label>
+  <label><input type="radio" name="transpose-semitones">-4</label>
+  <label><input type="radio" name="transpose-semitones">-3</label>
+  <label><input type="radio" name="transpose-semitones">-2</label>
+  <label><input type="radio" name="transpose-semitones">-1</label>
+  <label><input type="radio" name="transpose-semitones" checked>0</label>
+  <label><input type="radio" name="transpose-semitones">+1</label>
+  <label><input type="radio" name="transpose-semitones">+2</label>
+  <label><input type="radio" name="transpose-semitones">+3</label>
+  <label><input type="radio" name="transpose-semitones">+4</label>
+  <label><input type="radio" name="transpose-semitones">+5</label>
+  <label><input type="radio" name="transpose-semitones">+6</label>
 </fieldset>
 ```
 
