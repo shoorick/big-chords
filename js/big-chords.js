@@ -69,6 +69,7 @@
   applyDataSettingToControl("chord-size", ["1", "2", "3", "4", "5", "6"]);
   const enharmonicPreference = getEnharmonicPreference(configuredEnharmonicPreference);
   const chordElements = [];
+  let transposeSemitones = 0;
 
   for (let index = 0; index < lines.length; index += 2) {
     const lyricLine = Array.from(lines[index + 1] ?? "");
@@ -114,7 +115,11 @@
     const preference = getEnharmonicPreference(configuredEnharmonicPreference);
     const displaySystem = getDisplayNotationSystem(configuredDisplayNotationSystem);
     for (const { element, parsed } of chordElements) {
-      element.textContent = respellChord(parsed, preference, displaySystem);
+      element.textContent = respellChord(
+        transposeChord(parsed, transposeSemitones),
+        preference,
+        displaySystem,
+      );
     }
   };
 
@@ -123,6 +128,45 @@
       if (["enharmonic-preference", "display-notation-system"].includes(event.target.name)) {
         refreshChordSpellings();
       }
+    });
+  }
+
+  const transposeControl = document.querySelector(".transpose-control");
+  const transposeRadios = transposeControl?.querySelectorAll('input[name="transpose-semitones"]') ?? [];
+  const transposeOutput = transposeControl?.querySelector("output");
+  /**
+   * Applies a chromatic transposition offset, clamped to the supported -11 to +11 range.
+   * @param {string | number} value Requested offset in semitones.
+   * @returns {number} Applied offset.
+   */
+  const setTranspose = (value) => {
+    const parsedValue = Number.parseInt(value, 10);
+    transposeSemitones = Number.isInteger(parsedValue)
+      ? Math.min(11, Math.max(-11, parsedValue))
+      : 0;
+    if (transposeOutput) transposeOutput.textContent = String(transposeSemitones);
+    refreshChordSpellings();
+    return transposeSemitones;
+  };
+  for (const radio of transposeRadios) {
+    radio.addEventListener("change", () => {
+      if (radio.checked) setTranspose(getRadioValue(radio));
+    });
+  }
+  if (transposeRadios.length === 0 && transposeControl) {
+    transposeControl.addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button || !transposeControl.contains(button)) return;
+
+      const change = button.id === "transpose-increase"
+        ? 1
+        : button.id === "transpose-decrease"
+          ? -1
+          : 0;
+      if (change === 0) return;
+
+      const next = transposeSemitones + change;
+      setTranspose(next > 11 || next < -11 ? 0 : next);
     });
   }
 
@@ -330,7 +374,7 @@
    * @returns {ParsedChord} Transposed chord with the same quality suffix.
    */
   function transposeChord(chord, semitones) {
-    if (!chord || !Number.isFinite(semitones)) return chord;
+    if (!chord || !Number.isFinite(semitones) || semitones === 0) return chord;
     const system = chord.notationSystem ?? "english";
     const root = transposeNote(chord.root, semitones, system);
     const bass = chord.bass ? transposeNote(chord.bass, semitones, system) : null;

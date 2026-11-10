@@ -19,7 +19,8 @@ body {
   padding: 0 1rem;
 }
 
-div.chord-size-control {
+div.chord-size-control,
+div.transpose-control {
   display: flex;
   align-items: center;
   gap: 0.25em;
@@ -92,7 +93,8 @@ div.chord-size-control {
 
 .enharmonic-control,
 .notation-system-control,
-fieldset.chord-size-control {
+fieldset.chord-size-control,
+fieldset.transpose-control {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -101,7 +103,8 @@ fieldset.chord-size-control {
   padding: 0.25em 0.75em 0.5em;
 }
 
-.chord-size-control button {
+.chord-size-control button,
+.transpose-control button {
   padding: 0 var(--control-inline-padding);
   font-size: 2em;
   line-height: 1;
