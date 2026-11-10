@@ -12,6 +12,8 @@ Set `CHORD_ENHARMONIC_PREFERENCE` to `"sharps"`, `"flats"`, or `"as-is"` to choo
 
 An optional `.notation-system-control` radio group switches the displayed notation between English (`B♭`/`B`) and German (`B`/`H`).
 
+A `.transpose-control` transposes every parsed chord by a number of semitones while preserving chord quality and slash basses. Two variants are supported: a radio group named `transpose-semitones` (segmented buttons, typically `-6` to `+6`) and a pair of <kbd>−</kbd>/<kbd>+</kbd> buttons with an `<output>` showing the current offset (range `-11` to `+11`; stepping past either end resets the offset to `0`). Transposition composes with the enharmonic preference and display notation system, and notes with unresolved pitch classes stay as written. The programmatic API is `transposeChord(parsedChord, semitones)`, which returns a new parsed chord.
+
 Run the notation detection and chord parsing tests with `npm test` (Node.js 18 or newer).
 
 ## How to use it
@@ -133,6 +135,50 @@ Add class `button-like` to `div.song-controls` to display all its radio groups a
     <label><input type="radio" name="chord-size">1</label>
 ```
 ![Segmented button group](images/segmented-button-group.png)
+
+### Transpose control
+
+A segmented radio group named `transpose-semitones` offers fixed offsets; `0` means no transposition:
+
+```html
+<fieldset class="transpose-control">
+  <legend>Transpose</legend>
+  <label><input type="radio" name="transpose-semitones" value="-6">-6</label>
+  <label><input type="radio" name="transpose-semitones" value="-5">-5</label>
+  <label><input type="radio" name="transpose-semitones" value="-4">-4</label>
+  <label><input type="radio" name="transpose-semitones" value="-3">-3</label>
+  <label><input type="radio" name="transpose-semitones" value="-2">-2</label>
+  <label><input type="radio" name="transpose-semitones" value="-1">-1</label>
+  <label><input type="radio" name="transpose-semitones" value="0" checked>0</label>
+  <label><input type="radio" name="transpose-semitones" value="1">+1</label>
+  <label><input type="radio" name="transpose-semitones" value="2">+2</label>
+  <label><input type="radio" name="transpose-semitones" value="3">+3</label>
+  <label><input type="radio" name="transpose-semitones" value="4">+4</label>
+  <label><input type="radio" name="transpose-semitones" value="5">+5</label>
+  <label><input type="radio" name="transpose-semitones" value="6">+6</label>
+</fieldset>
+```
+
+Alternatively, a stepper with <kbd>−</kbd>/<kbd>+</kbd> buttons and an `<output>` allows any offset from `-11` to `+11`; stepping past either limit resets the offset to `0`:
+
+```html
+<div class="transpose-control">
+  Transpose
+  <button
+    type="button"
+    id="transpose-decrease"
+    aria-label="Transpose down">
+    −
+  </button>
+  <output id="transpose-value" aria-live="polite">0</output>
+  <button
+    type="button"
+    id="transpose-increase"
+    aria-label="Transpose up">
+    +
+  </button>
+</div>
+```
 
 
 ## Examples
