@@ -64,6 +64,7 @@
     ["1", "2", "3", "4", "5", "6"],
     null,
   );
+  const configuredTranspose = getTransposeSetting();
   applyDataSettingToControl("enharmonic-preference", ["sharps", "flats", "as-is"]);
   applyDataSettingToControl("display-notation-system", ["english", "german"]);
   applyDataSettingToControl("chord-size", ["1", "2", "3", "4", "5", "6"]);
@@ -169,6 +170,12 @@
       setTranspose(next > 11 || next < -11 ? 0 : next);
     });
   }
+  if (configuredTranspose !== null) {
+    const radio = [...transposeRadios]
+      .find((input) => getRadioValue(input) === String(configuredTranspose));
+    if (radio) radio.checked = true;
+    setTranspose(configuredTranspose);
+  }
 
   const sizeControl = document.querySelector(".chord-size-control");
   const sizeRadios = sizeControl?.querySelectorAll('input[name="chord-size"]') ?? [];
@@ -263,6 +270,20 @@
       if (validValues.includes(value)) return value;
     }
     return fallback;
+  }
+
+  /**
+   * Reads a validated transposition offset, preferring the chord sheet's `<pre>` over the script element.
+   * @returns {number | null} Offset in semitones from -11 to 11, or null when unset or invalid.
+   */
+  function getTransposeSetting() {
+    for (const element of [source, scriptElement]) {
+      const raw = element?.getAttribute("data-transpose");
+      if (raw === null || raw === undefined || !/^-?\d+$/.test(raw.trim())) continue;
+      const value = Number.parseInt(raw, 10);
+      if (value >= -11 && value <= 11) return value;
+    }
+    return null;
   }
 
   /**
