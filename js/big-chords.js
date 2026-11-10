@@ -136,15 +136,13 @@
   const transposeRadios = transposeControl?.querySelectorAll('input[name="transpose-semitones"]') ?? [];
   const transposeOutput = transposeControl?.querySelector("output");
   /**
-   * Applies a chromatic transposition offset, clamped to the supported -11 to +11 range.
+   * Applies a chromatic transposition offset, reduced modulo 12 to the -11 to +11 range.
    * @param {string | number} value Requested offset in semitones.
    * @returns {number} Applied offset.
    */
   const setTranspose = (value) => {
     const parsedValue = Number.parseInt(value, 10);
-    transposeSemitones = Number.isInteger(parsedValue)
-      ? Math.min(11, Math.max(-11, parsedValue))
-      : 0;
+    transposeSemitones = Number.isInteger(parsedValue) ? parsedValue % 12 || 0 : 0;
     if (transposeOutput) transposeOutput.textContent = String(transposeSemitones);
     refreshChordSpellings();
     return transposeSemitones;
@@ -166,8 +164,7 @@
           : 0;
       if (change === 0) return;
 
-      const next = transposeSemitones + change;
-      setTranspose(next > 11 || next < -11 ? 0 : next);
+      setTranspose(transposeSemitones + change);
     });
   }
   if (configuredTranspose !== null) {
@@ -274,14 +271,14 @@
 
   /**
    * Reads a validated transposition offset, preferring the chord sheet's `<pre>` over the script element.
-   * @returns {number | null} Offset in semitones from -11 to 11, or null when unset or invalid.
+   * Any integer is accepted and reduced modulo 12 to the -11 to +11 range.
+   * @returns {number | null} Offset in semitones, or null when unset or invalid.
    */
   function getTransposeSetting() {
     for (const element of [source, scriptElement]) {
       const raw = element?.getAttribute("data-transpose");
       if (raw === null || raw === undefined || !/^-?\d+$/.test(raw.trim())) continue;
-      const value = Number.parseInt(raw, 10);
-      if (value >= -11 && value <= 11) return value;
+      return Number.parseInt(raw, 10) % 12 || 0;
     }
     return null;
   }

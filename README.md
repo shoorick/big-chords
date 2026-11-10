@@ -12,7 +12,7 @@ Set `CHORD_ENHARMONIC_PREFERENCE` to `"sharps"`, `"flats"`, or `"as-is"` to choo
 
 An optional `.notation-system-control` radio group switches the displayed notation between English (`B♭`/`B`) and German (`B`/`H`).
 
-A `.transpose-control` transposes every parsed chord by a number of semitones while preserving chord quality and slash basses. Two variants are supported: a radio group named `transpose-semitones` (segmented buttons, typically `-6` to `+6`) and a pair of <kbd>−</kbd>/<kbd>+</kbd> buttons with an `<output>` showing the current offset (range `-11` to `+11`; stepping past either end resets the offset to `0`). The initial offset can be set with the `data-transpose` attribute on the `<script>` or `<pre>` element (see [Data attributes](#data-attributes)); a matching radio is selected automatically when the control offers that value. Transposition composes with the enharmonic preference and display notation system, and notes with unresolved pitch classes stay as written. The programmatic API is `transposeChord(parsedChord, semitones)`, which returns a new parsed chord.
+A `.transpose-control` transposes every parsed chord by a number of semitones while preserving chord quality and slash basses. Two variants are supported: a radio group named `transpose-semitones` (segmented buttons, typically `-6` to `+6`) and a pair of <kbd>−</kbd>/<kbd>+</kbd> buttons with an `<output>` showing the current offset (range `-11` to `+11`; stepping past either end resets the offset to `0`). The initial offset can be set with the `data-transpose` attribute on the `<script>` or `<pre>` element (see [Data attributes](#data-attributes)); any integer is reduced modulo 12, and a matching radio is selected automatically when the control offers that value. Transposition composes with the enharmonic preference and display notation system, and notes with unresolved pitch classes stay as written. The programmatic API is `transposeChord(parsedChord, semitones)`, which returns a new parsed chord.
 
 Run the notation detection and chord parsing tests with `npm test` (Node.js 18 or newer).
 
@@ -66,7 +66,7 @@ Set options on the `<script>` element to provide defaults, or on a specific `<pr
 - `data-enharmonic-preference`: how to spell enharmonic notes; `as-is`, `sharps`, or `flats`.
 - `data-display-notation-system`: which note-name system to use when displaying chords; `english` or `german`.
 - `data-chord-size`: initial chord size, from `1` to `6`.
-- `data-transpose`: initial transposition offset in semitones, an integer from `-11` to `11`; `0` means no transposition.
+- `data-transpose`: initial transposition offset in semitones; any integer is accepted and reduced modulo 12 into the `-11` to `+11` range (`0` means no transposition).
 
 For example, set defaults on the script and choose German display notation for one chord sheet:
 
