@@ -28,7 +28,7 @@
     : document.querySelector("pre[data-chord-lines]");
   if (!source) {
     if (typeof module !== "undefined" && module.exports) {
-      module.exports = { detectNotationSystem, parseChord, respellChord };
+      module.exports = { detectNotationSystem, parseChord, respellChord, transposeChord };
     }
     return;
   }
@@ -320,6 +320,40 @@
       ? respellNote(chord.bass, preference, system)
       : null;
     return `${root}${chord.quality}${bass ? `/${bass}` : ""}`;
+  }
+
+  /**
+   * Transposes a parsed chord by a number of semitones.
+   * Notes with unresolved pitch classes (ambiguous B/H) are left unchanged.
+   * @param {ParsedChord} chord Parsed chord to transpose.
+   * @param {number} semitones Chromatic offset; may be negative.
+   * @returns {ParsedChord} Transposed chord with the same quality suffix.
+   */
+  function transposeChord(chord, semitones) {
+    if (!chord || !Number.isFinite(semitones)) return chord;
+    const system = chord.notationSystem ?? "english";
+    const root = transposeNote(chord.root, semitones, system);
+    const bass = chord.bass ? transposeNote(chord.bass, semitones, system) : null;
+    return {
+      ...chord,
+      root,
+      bass,
+      normalized: `${formatNote(root)}${chord.quality}${bass ? `/${formatNote(bass)}` : ""}`,
+    };
+  }
+
+  /**
+   * Shifts a note's pitch class and respells it, using sharps as the base spelling.
+   * @param {ParsedNote} note Note to transpose.
+   * @param {number} semitones Chromatic offset.
+   * @param {DisplayNotationSystem | NotationSystem} system Notation used for respelling.
+   * @returns {ParsedNote} Transposed note.
+   */
+  function transposeNote(note, semitones, system) {
+    if (note.pitchClass === null) return { ...note };
+    const pitchClass = Math.round((((note.pitchClass + semitones) % 12) + 12) % 12);
+    const spelling = respellNote({ ...note, pitchClass }, "sharps", system);
+    return { letter: spelling[0], accidental: spelling.slice(1), pitchClass };
   }
 
   /**
