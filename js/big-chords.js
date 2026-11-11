@@ -28,7 +28,13 @@
     : document.querySelector("pre[data-chord-lines]");
   if (!source) {
     if (typeof module !== "undefined" && module.exports) {
-      module.exports = { detectNotationSystem, parseChord, respellChord, transposeChord };
+      module.exports = {
+        detectNotationSystem,
+        parseChord,
+        parseInlineMarkup,
+        respellChord,
+        transposeChord,
+      };
     }
     return;
   }
@@ -67,6 +73,7 @@
     null,
   );
   const configuredTranspose = getTransposeSetting();
+  const internalMarkup = getDataSetting("internal-markup", ["mediawiki"], null) === "mediawiki";
   applyDataSettingToControl("enharmonic-preference", ["sharps", "flats", "as-is"]);
   applyDataSettingToControl("display-notation-system", ["english", "german"]);
   applyDataSettingToControl("chord-size", ["1", "2", "3", "4", "5", "6"]);
@@ -257,7 +264,7 @@
     fragment.append(chordElement);
 
     const lyricElement = document.createElement("span");
-    lyricElement.textContent = lyric;
+    renderLyricText(lyricElement, lyric, internalMarkup);
     fragment.append(lyricElement);
 
     row.append(fragment);
@@ -283,6 +290,79 @@
         element.append(document.createTextNode(part));
       }
     }
+  }
+
+  /**
+   * Parses MediaWiki-style ''italic'' and '''bold''' markers into a token tree.
+   * Unclosed markers and single quotes are kept as literal text.
+   * @param {string} text Text to parse.
+   * @returns {{type: string, text?: string, children?: object[]}[]} Token list.
+   */
+  function parseInlineMarkup(text) {
+    const tokens = [];
+    let buffer = "";
+    let index = 0;
+    const flush = () => {
+      if (buffer) tokens.push({ type: "text", text: buffer });
+      buffer = "";
+    };
+    while (index < text.length) {
+      const marker = text.startsWith("'''", index)
+        ? "'''"
+        : text.startsWith("''", index)
+          ? "''"
+          : null;
+      if (marker === null) {
+        buffer += text[index];
+        index += 1;
+        continue;
+      }
+      const end = text.indexOf(marker, index + marker.length);
+      if (end === -1) {
+        buffer += marker;
+        index += marker.length;
+        continue;
+      }
+      flush();
+      tokens.push({
+        type: marker === "'''" ? "bold" : "italic",
+        children: parseInlineMarkup(text.slice(index + marker.length, end)),
+      });
+      index = end + marker.length;
+    }
+    flush();
+    return tokens;
+  }
+
+  /**
+   * Appends parsed markup tokens to a parent element as DOM nodes.
+   * @param {HTMLElement} parent Parent element.
+   * @param {object[]} tokens Tokens from parseInlineMarkup.
+   * @returns {void}
+   */
+  function appendMarkupNodes(parent, tokens) {
+    for (const token of tokens) {
+      if (token.type === "text") {
+        parent.append(document.createTextNode(token.text));
+      } else {
+        const element = document.createElement(token.type === "bold" ? "strong" : "em");
+        appendMarkupNodes(element, token.children);
+        parent.append(element);
+      }
+    }
+  }
+
+  /**
+   * Fills a lyric element with text, optionally parsing MediaWiki-style markup.
+   * @param {HTMLElement} element Lyric element.
+   * @param {string} text Lyric text.
+   * @param {boolean} markup Whether to parse ''italic'' and '''bold'''.
+   * @returns {void}
+   */
+  function renderLyricText(element, text, markup) {
+    element.replaceChildren();
+    if (markup) appendMarkupNodes(element, parseInlineMarkup(text));
+    else element.textContent = text;
   }
 
   /**

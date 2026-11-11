@@ -70,6 +70,7 @@ Set options on the `<script>` element to provide defaults, or on a specific `<pr
 - `data-chord-size`: initial chord size, from `1` to `6`.
 - `data-transpose`: initial transposition offset in semitones; any integer is accepted and reduced modulo 12 into the `-11` to `+11` range (`0` means no transposition).
 - `data-detect-chords`: chord-line detection mode; `comma` treats a line starting with `,` as a chord line (the comma is rendered as a space, preserving column positions) and the following line as its lyric. Lines not starting with a comma are rendered as plain text, so section markers and blank lines can appear between pairs.
+- `data-internal-markup`: inline markup mode for lyric and plain-text lines; `mediawiki` parses `''italic''` and `'''bold'''` markers into `<em>` and `<strong>` elements. Markers collapse entirely — they take no space — while chords stay aligned because each fragment pairs a chord with its own slice of the lyric line. Markup is not applied to chord labels. Unclosed markers and single quotes are rendered literally.
 
 For example, set defaults on the script and choose German display notation for one chord sheet:
 
