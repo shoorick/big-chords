@@ -1,6 +1,8 @@
 # Big Chords
 
-`js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. If the page includes a `.chord-size-control`, its <kbd>+</kbd> and <kbd>−</kbd> buttons adjust the chord size.
+`js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. Alternatively, `data-detect-chords="comma"` detects chord lines by a leading comma instead of line pairing (see [Data attributes](#data-attributes)).
+
+If the page includes a `.chord-size-control`, its <kbd>+</kbd> and <kbd>−</kbd> buttons adjust the chord size.
 
 Cyrillic `А`, `В`, `С`, `Е`, and `Н` are converted to Latin `A`, `B`, `C`, `E`, and `H` at the start of a chord and after `/`. Within chord tokens, Cyrillic soft signs (`Ь`/`ь`) and lowercase Latin `b` after an uppercase Latin letter become `♭`, and `#` becomes `♯`.
 
@@ -67,6 +69,7 @@ Set options on the `<script>` element to provide defaults, or on a specific `<pr
 - `data-display-notation-system`: which note-name system to use when displaying chords; `english` or `german`.
 - `data-chord-size`: initial chord size, from `1` to `6`.
 - `data-transpose`: initial transposition offset in semitones; any integer is accepted and reduced modulo 12 into the `-11` to `+11` range (`0` means no transposition).
+- `data-detect-chords`: chord-line detection mode; `comma` treats a line starting with `,` as a chord line (the comma is rendered as a space, preserving column positions) and the following line as its lyric. Lines not starting with a comma are rendered as plain text, so section markers and blank lines can appear between pairs.
 
 For example, set defaults on the script and choose German display notation for one chord sheet:
 
@@ -190,6 +193,7 @@ Examples are in the `samples/` directory:
 - [Jingle Bells — all-in-one](samples/jingle-bells-offline.html) (see below)
 - [The One Horse Open Sleigh — full example](samples/one-horse-open-sleigh.html), with all three settings configurable: chord size, enharmonic spelling, and displayed notation system.
 - [The One Horse Open Sleigh — German notation preset](samples/one-horse-open-sleigh-german.html), with German display notation selected through a `data-` attribute.
+- [Comma-prefixed chord lines](samples/comma-chords.html), a bard-wiki-style sheet detected via `data-detect-chords="comma"`.
 
 For pages in `samples/`, use the paths `../css/style.css` and `../js/big-chords.js`.
 
