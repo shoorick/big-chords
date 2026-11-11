@@ -137,6 +137,57 @@
 
   source.replaceWith(song);
 
+  const wordCharPattern = /[\p{L}\p{N}\p{M}]/u;
+
+  /**
+   * Returns the first or last visible character of a lyric element's text.
+   * @param {HTMLElement} element Lyric element.
+   * @param {boolean} fromEnd Whether to take the last character.
+   * @returns {string | undefined}
+   */
+  const edgeChar = (element, fromEnd) => {
+    const chars = Array.from(element.textContent);
+    return fromEnd ? chars.at(-1) : chars[0];
+  };
+
+  /**
+   * Marks lyric fragments that end a visual line in the middle of a word,
+   * so CSS can show a dash at the break point.
+   * @returns {void}
+   */
+  const updateWordBreakMarkers = () => {
+    for (const row of song.querySelectorAll(".song-line")) {
+      const fragments = [...row.querySelectorAll(".song-fragment")];
+      for (const [index, fragment] of fragments.entries()) {
+        const next = fragments[index + 1];
+        if (!next) continue;
+        const lyric = fragment.querySelector(".lyric");
+        const nextLyric = next.querySelector(".lyric");
+        if (!lyric || !nextLyric) continue;
+        const splitsWord =
+          wordCharPattern.test(edgeChar(lyric, true) ?? "") &&
+          wordCharPattern.test(edgeChar(nextLyric, false) ?? "");
+        const wrapped = fragment.offsetTop !== next.offsetTop;
+        lyric.classList.toggle("tail", splitsWord && wrapped);
+      }
+    }
+  };
+
+  let breakMarkersScheduled = false;
+  const scheduleWordBreakMarkers = () => {
+    if (breakMarkersScheduled) return;
+    breakMarkersScheduled = true;
+    requestAnimationFrame(() => {
+      breakMarkersScheduled = false;
+      updateWordBreakMarkers();
+    });
+  };
+  window.addEventListener("resize", scheduleWordBreakMarkers);
+  if (typeof document !== "undefined" && document.fonts) {
+    document.fonts.ready.then(scheduleWordBreakMarkers);
+  }
+  updateWordBreakMarkers();
+
   /** Rewrites displayed chord labels using the currently selected spellings. */
   const refreshChordSpellings = () => {
     const preference = getEnharmonicPreference(configuredEnharmonicPreference);
@@ -215,6 +266,7 @@
     const parsedSize = Number.parseInt(value, 10);
     const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
     song.style.setProperty("--chord-size", `${size}em`);
+    updateWordBreakMarkers();
     return size;
   };
   const checkedRadio = sizeControl?.querySelector('input[name="chord-size"]:checked');
@@ -264,6 +316,7 @@
     fragment.append(chordElement);
 
     const lyricElement = document.createElement("span");
+    lyricElement.className = "lyric";
     renderLyricText(lyricElement, lyric, internalMarkup);
     fragment.append(lyricElement);
 

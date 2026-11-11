@@ -132,6 +132,10 @@ fieldset.transpose-control {
   white-space: pre;
 }
 
+.song-fragment .lyric.tail::after {
+  content: "-";
+}
+
 .song-fragment > em {
   color: var(--accent-color);
   font-family: var(--chord-font-family);
