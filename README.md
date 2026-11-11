@@ -245,3 +245,7 @@ Alexander Sapozhnikov <shoorick@cpan.org>
 ## License
 
 The project's source code is available under the MIT License; see [LICENSE](LICENSE). Song lyrics and other third-party material in `samples/` are not covered by this license.
+
+## Credits
+
+Sharp and flat signs in chord labels are rendered as SVG glyphs taken from the [Bravura](https://github.com/steinbergmedia/bravura) music font (SMuFL reference font, [SIL Open Font License 1.1](https://openfontlicense.org)). The outlines are embedded in `css/style.css` as data URIs.
