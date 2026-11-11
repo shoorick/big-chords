@@ -2,7 +2,7 @@
 
 `js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. Alternatively, `data-detect-chords="comma"` detects chord lines by a leading comma instead of line pairing (see [Data attributes](#data-attributes)).
 
-When a word is split across a fragment boundary, the script compares the rendered positions of neighboring fragments. If they end up on different visual lines, the lyric gets a `tail` class and CSS adds a trailing hyphen via `::after`. If they stay on the same line but a wide gap opens inside the word (wider than half the lyric font size), the lyric gets a `split` class instead, and CSS places an en dash roughly in the middle of the gap using the measured width stored in `--split-gap`. Small or absent gaps leave the word visually intact.
+When a word is split across a fragment boundary, the script compares the rendered positions of neighboring fragments. If they end up on different visual lines, a hyphen is inserted at the end of the lyric; if they stay on the same line but a wide gap opens inside the word (wider than half the lyric font size), an en dash is inserted roughly in the middle of the gap instead. Small or absent gaps leave the word visually intact. A run of underscores at the end of a lyric fragment is treated as an explicit word break: the underscores are hidden (keeping their width, so chord alignment is preserved) and the same dash rules apply.
 
 If the page includes a `.chord-size-control`, its <kbd>+</kbd> and <kbd>−</kbd> buttons adjust the chord size.
 

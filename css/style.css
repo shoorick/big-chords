@@ -132,13 +132,8 @@ fieldset.transpose-control {
   white-space: pre;
 }
 
-.song-fragment .lyric.tail::after {
-  content: "-";
-}
-
-.song-fragment .lyric.split::after {
-  content: "–";
-  margin-left: max(0px, calc(var(--split-gap, 0px) / 2 - 0.3em));
+.song-fragment .lyric .gap-pad {
+  visibility: hidden;
 }
 
 .song-fragment > em {

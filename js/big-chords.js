@@ -140,13 +140,32 @@
   const wordCharPattern = /[\p{L}\p{N}\p{M}]/u;
 
   /**
+   * Returns the lyric element's text excluding invisible helpers.
+   * @param {HTMLElement} element Lyric element.
+   * @returns {string}
+   */
+  const visibleText = (element) => {
+    let text = "";
+    for (const node of element.childNodes) {
+      if (
+        node.nodeType === 1 &&
+        (node.classList.contains("gap-pad") || node.classList.contains("word-dash"))
+      ) {
+        continue;
+      }
+      text += node.textContent;
+    }
+    return text;
+  };
+
+  /**
    * Returns the first or last visible character of a lyric element's text.
    * @param {HTMLElement} element Lyric element.
    * @param {boolean} fromEnd Whether to take the last character.
    * @returns {string | undefined}
    */
   const edgeChar = (element, fromEnd) => {
-    const chars = Array.from(element.textContent);
+    const chars = Array.from(visibleText(element));
     return fromEnd ? chars.at(-1) : chars[0];
   };
 
@@ -156,22 +175,31 @@
    * @returns {{left: number, right: number} | null}
    */
   const textBounds = (element) => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    const rects = range.getClientRects();
-    if (rects.length === 0) return null;
     let left = Infinity;
     let right = -Infinity;
-    for (const rect of rects) {
-      left = Math.min(left, rect.left);
-      right = Math.max(right, rect.right);
+    let found = false;
+    for (const node of element.childNodes) {
+      if (
+        node.nodeType === 1 &&
+        (node.classList.contains("gap-pad") || node.classList.contains("word-dash"))
+      ) {
+        continue;
+      }
+      const range = document.createRange();
+      range.selectNode(node);
+      for (const rect of range.getClientRects()) {
+        left = Math.min(left, rect.left);
+        right = Math.max(right, rect.right);
+        found = true;
+      }
     }
-    return { left, right };
+    return found ? { left, right } : null;
   };
 
   /**
-   * Marks lyric fragments whose text ends in the middle of a word, so CSS can
-   * show a hyphen at a real line break or an en dash inside a wide gap.
+   * Inserts dash markers into lyric fragments whose text ends in the middle of
+   * a word: a hyphen at a real line break, an en dash inside a wide gap.
+   * Trailing underscores in the source count as explicit word breaks.
    * @returns {void}
    */
   const updateWordBreakMarkers = () => {
@@ -183,23 +211,44 @@
         const lyric = fragment.querySelector(".lyric");
         const nextLyric = next.querySelector(".lyric");
         if (!lyric || !nextLyric) continue;
-        const splitsWord =
-          wordCharPattern.test(edgeChar(lyric, true) ?? "") &&
-          wordCharPattern.test(edgeChar(nextLyric, false) ?? "");
+        const splitsWord = lyric.classList.contains("forced-break") ||
+          (wordCharPattern.test(edgeChar(lyric, true) ?? "") &&
+            wordCharPattern.test(edgeChar(nextLyric, false) ?? ""));
         const wrapped = fragment.offsetTop !== next.offsetTop;
-        lyric.classList.toggle("tail", splitsWord && wrapped);
 
-        let gap = 0;
-        if (splitsWord && !wrapped) {
+        let dashText = null;
+        let dashMargin = 0;
+        if (splitsWord && wrapped) {
+          dashText = "-";
+        } else if (splitsWord) {
           const bounds = textBounds(lyric);
           const nextBounds = textBounds(nextLyric);
-          if (bounds && nextBounds) gap = nextBounds.left - bounds.right;
+          const fontSize = parseFloat(getComputedStyle(lyric).fontSize);
+          const gap = bounds && nextBounds ? nextBounds.left - bounds.right : 0;
+          if (gap > fontSize * 0.5) {
+            dashText = "–";
+            dashMargin = Math.max(0, gap / 2 - fontSize * 0.3);
+          }
         }
-        const minGap = parseFloat(getComputedStyle(lyric).fontSize) * 0.5;
-        const showSplit = splitsWord && !wrapped && gap > minGap;
-        lyric.classList.toggle("split", showSplit);
-        if (showSplit) lyric.style.setProperty("--split-gap", `${gap}px`);
-        else lyric.style.removeProperty("--split-gap");
+
+        let dash = null;
+        for (const child of lyric.children) {
+          if (child.classList.contains("word-dash")) {
+            dash = child;
+            break;
+          }
+        }
+        if (dashText === null) {
+          dash?.remove();
+        } else {
+          if (!dash) {
+            dash = document.createElement("span");
+            dash.className = "word-dash";
+            lyric.insertBefore(dash, lyric.querySelector(".gap-pad"));
+          }
+          dash.textContent = dashText;
+          dash.style.marginLeft = `${dashMargin}px`;
+        }
       }
     }
   };
@@ -348,7 +397,19 @@
 
     const lyricElement = document.createElement("span");
     lyricElement.className = "lyric";
-    renderLyricText(lyricElement, lyric, internalMarkup);
+    const forcedBreak = /_+$/.test(lyric);
+    renderLyricText(
+      lyricElement,
+      forcedBreak ? lyric.replace(/_+$/, "") : lyric,
+      internalMarkup,
+    );
+    if (forcedBreak) {
+      lyricElement.classList.add("forced-break");
+      const pad = document.createElement("span");
+      pad.className = "gap-pad";
+      pad.textContent = lyric.match(/_+$/)[0];
+      lyricElement.append(pad);
+    }
     fragment.append(lyricElement);
 
     row.append(fragment);
