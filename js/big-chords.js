@@ -43,9 +43,11 @@
     ["english", "german", "auto"],
     CHORD_NOTATION_SYSTEM,
   );
-  const detectedNotationSystem = detectNotationSystem(
-    lines.filter((_, index) => index % 2 === 0),
-  );
+  const detectChords = getDataSetting("detect-chords", ["comma"], null);
+  const chordSourceLines = detectChords === "comma"
+    ? lines.filter((line) => line.startsWith(",")).map((line) => line.slice(1))
+    : lines.filter((_, index) => index % 2 === 0);
+  const detectedNotationSystem = detectNotationSystem(chordSourceLines);
   const notationSystem = configuredNotationSystem === "auto"
     ? detectedNotationSystem
     : configuredNotationSystem;
@@ -72,16 +74,33 @@
   const chordElements = [];
   let transposeSemitones = 0;
 
-  for (let index = 0; index < lines.length; index += 2) {
-    const lyricLine = Array.from(lines[index + 1] ?? "");
-    const chords = [...(lines[index] ?? "").matchAll(/\S+/g)].map((match) => {
+  const pairs = [];
+  if (detectChords === "comma") {
+    for (let index = 0; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (line.startsWith(",")) {
+        const hasLyric = index + 1 < lines.length && !lines[index + 1].startsWith(",");
+        pairs.push({ chord: line.replace(/^,/, " "), lyric: hasLyric ? lines[++index] : "" });
+      } else {
+        pairs.push({ chord: "", lyric: line });
+      }
+    }
+  } else {
+    for (let index = 0; index < lines.length; index += 2) {
+      pairs.push({ chord: lines[index] ?? "", lyric: lines[index + 1] ?? "" });
+    }
+  }
+
+  for (const { chord: chordSource, lyric: lyricSource } of pairs) {
+    const lyricLine = Array.from(lyricSource ?? "");
+    const chords = [...(chordSource ?? "").matchAll(/\S+/g)].map((match) => {
       const parsed = parseChord(match[0], notationSystem);
       return {
         parsed,
         chord: parsed
           ? respellChord(parsed, enharmonicPreference, getDisplayNotationSystem(configuredDisplayNotationSystem))
           : match[0],
-        column: Array.from((lines[index] ?? "").slice(0, match.index)).length,
+        column: Array.from((chordSource ?? "").slice(0, match.index)).length,
       };
     });
 
