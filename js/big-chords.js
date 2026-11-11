@@ -116,10 +116,13 @@
     const preference = getEnharmonicPreference(configuredEnharmonicPreference);
     const displaySystem = getDisplayNotationSystem(configuredDisplayNotationSystem);
     for (const { element, parsed } of chordElements) {
-      element.textContent = respellChord(
-        transposeChord(parsed, transposeSemitones),
-        preference,
-        displaySystem,
+      renderChordLabel(
+        element,
+        respellChord(
+          transposeChord(parsed, transposeSemitones),
+          preference,
+          displaySystem,
+        ),
       );
     }
   };
@@ -231,7 +234,7 @@
     fragment.className = "song-fragment";
 
     const chordElement = document.createElement("em");
-    chordElement.textContent = chord;
+    renderChordLabel(chordElement, chord);
     fragment.append(chordElement);
 
     const lyricElement = document.createElement("span");
@@ -240,6 +243,27 @@
 
     row.append(fragment);
     return chordElement;
+  }
+
+  /**
+   * Renders a chord label, replacing sharp/flat characters with SVG accidentals.
+   * @param {HTMLElement} element Chord element to fill.
+   * @param {string | null} text Chord label text.
+   * @returns {void}
+   */
+  function renderChordLabel(element, text) {
+    element.replaceChildren();
+    for (const part of String(text ?? "").split(/([♯♭])/)) {
+      if (!part) continue;
+      if (part === "♯" || part === "♭") {
+        const mark = document.createElement("span");
+        mark.className = `accidental accidental--${part === "♯" ? "sharp" : "flat"}`;
+        mark.textContent = part;
+        element.append(mark);
+      } else {
+        element.append(document.createTextNode(part));
+      }
+    }
   }
 
   /**

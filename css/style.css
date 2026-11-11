@@ -142,6 +142,33 @@ fieldset.transpose-control {
   padding-right: 0.25em;
 }
 
+.song-fragment em .accidental {
+  display: inline-block;
+  height: 0.9em;
+  vertical-align: -0.05em;
+  background-color: var(--accent-color);
+  color: transparent;
+  -webkit-mask-image: var(--accidental-mask);
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-image: var(--accidental-mask);
+  mask-mode: alpha;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+}
+
+.song-fragment em .accidental--sharp {
+  width: calc(0.9em * 510 / 1430);
+  --accidental-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%20-717%20510%201430%27%3E%3Cg%20transform%3D%27scale%281%2C-1%29%27%3E%3Cpath%20fill%3D%27%23fff%27%20d%3D%27M164%20-406v-284q0%20-23%20-31%20-23t-31%2023v252q0%2010%20-7%2021t-14%2011t-9%20-2l-47%20-18h-5l-4%20-2q-16%200%20-16%2018v146q0%2027%2025%2033q43%2018%2061%2026t16%2043v203q0%2013%20-8%2025t-18%2012h-2l-49%20-23l-5%20-2h-4q-16%200%20-16%2019v145q0%2027%2025%2033q41%2016%2053%2022q25%2012%2024%2056v276q0%2023%2031%2023t31%20-23v-246q0%20-41%2024%20-41q70%2016%20129%2052q23%2014%2027%2059v266q0%2023%2031%2023t31%20-23v-250q0%20-27%2028%20-26l51%2018q4%202%2011%202q14%200%2014%20-16v-146q0%20-24%20-25%20-34l-53%20-21q-10%20-4%20-18%20-24t-8%20-35v-191q0%20-37%2026%20-37l53%2021q4%202%2011%202q14%200%2014%20-16v-146q0%20-25%20-25%20-35q-43%20-16%20-61%20-24t-18%20-45v-291q0%20-23%20-31%20-23t-31%2023v256q0%2010%20-8%2023t-19%2014l-133%20-53q-20%20-8%20-20%20-46zM352%2040q0%2095%20-8%20116q-6%2012%20-39%2012t-86%20-27t-55%20-51q-6%20-25%20-6%20-133q0%20-107%205%20-119t35%20-12t84%2026t62%2056q8%2037%208%20132z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+.song-fragment em .accidental--flat {
+  width: calc(0.9em * 463 / 1257);
+  --accidental-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%20-899%20463%201257%27%3E%3Cg%20transform%3D%27scale%281%2C-1%29%27%3E%3Cpath%20fill%3D%27%23fff%27%20d%3D%27M63%20899q39%200%2039%20-35q0%20-262%20-14%20-577q0%20-25%2023%20-35q4%20-2%2012%20-2t43%2029q57%2034%20122%2032t120%20-56t55%20-138q0%20-174%20-246%20-346q-18%20-13%20-87%20-71t-83%20-58t-22%209q-17%2019%20-23%20898l-2%20293q2%2027%2022%2042t41%2015zM119%20-197q8%200%2020%207q98%2061%20148%20153q35%2061%2035%20121t-33%2098q-18%2023%20-59%2023q-41%20-1%20-85%20-43q-45%20-42%20-50%20-58t-5%20-65l6%20-205q0%20-31%2023%20-31z%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
 .song-line + .song-line {
   margin-top: 0.4em;
 }
@@ -154,5 +181,12 @@ fieldset.transpose-control {
 
   .song-controls {
     display: none;
+  }
+
+  .song-fragment em .accidental {
+    -webkit-mask-image: none;
+    mask-image: none;
+    background-color: transparent;
+    color: var(--accent-color);
   }
 }
