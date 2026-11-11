@@ -136,6 +136,11 @@ fieldset.transpose-control {
   content: "-";
 }
 
+.song-fragment .lyric.split::after {
+  content: "–";
+  margin-left: max(0px, calc(var(--split-gap, 0px) / 2 - 0.3em));
+}
+
 .song-fragment > em {
   color: var(--accent-color);
   font-family: var(--chord-font-family);

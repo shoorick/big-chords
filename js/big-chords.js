@@ -151,8 +151,27 @@
   };
 
   /**
-   * Marks lyric fragments that end a visual line in the middle of a word,
-   * so CSS can show a dash at the break point.
+   * Returns the bounding box covering an element's rendered text.
+   * @param {HTMLElement} element Element whose text to measure.
+   * @returns {{left: number, right: number} | null}
+   */
+  const textBounds = (element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const rects = range.getClientRects();
+    if (rects.length === 0) return null;
+    let left = Infinity;
+    let right = -Infinity;
+    for (const rect of rects) {
+      left = Math.min(left, rect.left);
+      right = Math.max(right, rect.right);
+    }
+    return { left, right };
+  };
+
+  /**
+   * Marks lyric fragments whose text ends in the middle of a word, so CSS can
+   * show a hyphen at a real line break or an en dash inside a wide gap.
    * @returns {void}
    */
   const updateWordBreakMarkers = () => {
@@ -169,6 +188,18 @@
           wordCharPattern.test(edgeChar(nextLyric, false) ?? "");
         const wrapped = fragment.offsetTop !== next.offsetTop;
         lyric.classList.toggle("tail", splitsWord && wrapped);
+
+        let gap = 0;
+        if (splitsWord && !wrapped) {
+          const bounds = textBounds(lyric);
+          const nextBounds = textBounds(nextLyric);
+          if (bounds && nextBounds) gap = nextBounds.left - bounds.right;
+        }
+        const minGap = parseFloat(getComputedStyle(lyric).fontSize) * 0.5;
+        const showSplit = splitsWord && !wrapped && gap > minGap;
+        lyric.classList.toggle("split", showSplit);
+        if (showSplit) lyric.style.setProperty("--split-gap", `${gap}px`);
+        else lyric.style.removeProperty("--split-gap");
       }
     }
   };
