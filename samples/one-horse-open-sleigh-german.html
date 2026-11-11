@@ -25,7 +25,7 @@
         <legend>Chord spelling</legend>
         <label>
           <input type="radio" name="enharmonic-preference" value="flats">
-          ♭
+          <span class="accidental accidental--flat">♭</span>
         </label>
         <label>
           <input type="radio" name="enharmonic-preference" value="as-is" checked>
@@ -33,14 +33,14 @@
         </label>
         <label>
           <input type="radio" name="enharmonic-preference" value="sharps">
-          ♯
+          <span class="accidental accidental--sharp">♯</span>
         </label>
       </fieldset>
       <fieldset class="notation-system-control">
         <legend>Notation system</legend>
         <label>
           <input type="radio" name="display-notation-system" value="english" checked>
-          English (B♭)
+          English (B<span class="accidental accidental--flat">♭</span>)
         </label>
         <label>
           <input type="radio" name="display-notation-system" value="german">
