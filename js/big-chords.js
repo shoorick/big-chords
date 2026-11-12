@@ -671,6 +671,7 @@
 
   /**
    * Parses a chord token into root, quality, and optional slash bass components.
+   * A slash suffix that is not a note (e.g. `/-5`, `/+5`) is kept as part of the quality.
    * @param {string} source Chord token to parse.
    * @param {NotationSystem} system Notation used to interpret B and H.
    * @returns {ParsedChord | null} Parsed chord, or null when the token is not recognized.
@@ -685,7 +686,10 @@
     const bassMatch = parts.length === 2
       ? parts[1].match(/^([A-HАВСЕН])([#♯b♭Ьь]?)$/u)
       : null;
-    if (parts.length === 2 && !bassMatch) return null;
+    const alteration = parts.length === 2 && !bassMatch && /^[+-]\d+$/.test(parts[1])
+      ? parts[1]
+      : null;
+    if (parts.length === 2 && !bassMatch && !alteration) return null;
 
     const root = {
       letter: normalizeNoteLetter(rootMatch[1]),
@@ -695,7 +699,8 @@
     const quality = rootMatch[3]
       .replace(/[Ьь]/g, "♭")
       .replace(/#/g, "♯")
-      .replace(/([A-Z])b/g, "$1♭");
+      .replace(/([A-Z])b/g, "$1♭")
+      + (alteration ? `/${alteration}` : "");
     const bass = bassMatch
       ? {
           letter: normalizeNoteLetter(bassMatch[1]),
@@ -830,15 +835,15 @@
   }
 
   /**
-   * Converts a note to a pitch class, or returns null when B/H is ambiguous.
+   * Converts a note to a pitch class, or returns null when B is ambiguous.
+   * H is always German B natural, so its pitch class is known in every system.
    * @param {ParsedNote} note Note to convert.
-   * @param {NotationSystem} system Notation used to interpret B and H.
+   * @param {NotationSystem} system Notation used to interpret B.
    * @returns {number | null} Semitone number from C, in the range 0–11.
    */
   function getPitchClass(note, system) {
-    const naturalPitchClasses = { A: 9, B: 11, C: 0, D: 2, E: 4, F: 5, G: 7, H: null };
+    const naturalPitchClasses = { A: 9, B: 11, C: 0, D: 2, E: 4, F: 5, G: 7, H: 11 };
     if (note.letter === "B" && system === "german") naturalPitchClasses.B = 10;
-    if (note.letter === "H" && system === "german") naturalPitchClasses.H = 11;
     if (note.letter === "B" && system === null) return null;
 
     const naturalPitchClass = naturalPitchClasses[note.letter];

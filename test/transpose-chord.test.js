@@ -46,11 +46,21 @@ test("transposes German B and H using German pitch classes", () => {
   assert.equal(transposed("B", -1, system), "A");
 });
 
-test("leaves unresolved B and H unchanged when notation is ambiguous", () => {
+test("leaves unresolved B unchanged when notation is ambiguous", () => {
   const chord = transposeChord(parseChord("B/C", null), 2);
 
   assert.deepEqual(chord.root, { letter: "B", accidental: "", pitchClass: null });
   assert.deepEqual(chord.bass, { letter: "D", accidental: "", pitchClass: 2 });
+});
+
+test("transposes the root of chords with slash alterations", () => {
+  assert.equal(transposed("Dm7/-5", 2), "Em7/-5");
+  assert.equal(transposed("G7/+5", 2), "A7/+5");
+});
+
+test("transposes H even when the notation system is unresolved", () => {
+  assert.equal(transposed("H", 2, null), "C♯");
+  assert.equal(transposed("Hm", -1, null), "A♯m");
 });
 
 test("returns the chord unchanged for invalid input", () => {

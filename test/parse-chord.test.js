@@ -68,7 +68,7 @@ test("uses auto-detection to resolve B in English notation", () => {
 
   assert.equal(system, "english");
   assert.equal(parseChord("B", system).root.pitchClass, 11);
-  assert.equal(parseChord("H", system).root.pitchClass, null);
+  assert.equal(parseChord("H", system).root.pitchClass, 11);
 });
 
 test("manual English notation treats B as natural and applies accidentals", () => {
@@ -84,12 +84,22 @@ test("manual German notation treats B as flat and H as natural", () => {
   assert.equal(parseChord("B♯", "german").root.pitchClass, 11);
 });
 
-test("leaves B and H pitch classes unresolved when auto-detection has no clue", () => {
+test("leaves only B unresolved when auto-detection has no clue", () => {
   const system = detectNotationSystem(["Am", "C/G", "B"]);
 
   assert.equal(system, null);
   assert.equal(parseChord("B", system).root.pitchClass, null);
-  assert.equal(parseChord("H", system).root.pitchClass, null);
+  assert.equal(parseChord("H", system).root.pitchClass, 11);
+});
+
+test("parses slash alterations as part of the quality", () => {
+  const chord = parseChord("Dm7/-5", "english");
+
+  assert.equal(chord.root.pitchClass, 2);
+  assert.equal(chord.quality, "m7/-5");
+  assert.equal(chord.bass, null);
+  assert.equal(chord.normalized, "Dm7/-5");
+  assert.equal(parseChord("G7/+5", "english").normalized, "G7/+5");
 });
 
 test("rejects unsupported roots and malformed slash basses", () => {
@@ -136,11 +146,11 @@ test("uses German B and H semantics when choosing enharmonic spellings", () => {
   assert.equal(respellChord(germanH, "flats"), "H");
 });
 
-test("leaves B and H unchanged if automatic notation is unresolved", () => {
+test("leaves ambiguous B unchanged and respells H if automatic notation is unresolved", () => {
   const system = detectNotationSystem(["C", "B"]);
 
   assert.equal(respellChord(parseChord("B", system), "sharps"), "B");
-  assert.equal(respellChord(parseChord("H", system), "flats"), "H");
+  assert.equal(respellChord(parseChord("H", system), "flats"), "B");
   assert.equal(respellChord(parseChord("C#", system), "flats"), "D♭");
 });
 
