@@ -345,6 +345,14 @@
   const setTranspose = (value) => {
     const parsedValue = Number.parseInt(value, 10);
     transposeSemitones = Number.isInteger(parsedValue) ? parsedValue % 12 || 0 : 0;
+    const normalized = ((transposeSemitones % 12) + 12) % 12;
+    const radio = [...transposeRadios]
+      .find((input) => getRadioValue(input) === String(transposeSemitones))
+      ?? [...transposeRadios].find((input) => {
+        const value = Number(getRadioValue(input));
+        return Number.isInteger(value) && ((value % 12) + 12) % 12 === normalized;
+      });
+    if (radio) radio.checked = true;
     if (transposeOutput) transposeOutput.textContent = String(transposeSemitones);
     refreshChordSpellings();
     return transposeSemitones;
@@ -370,11 +378,33 @@
     });
   }
   if (hasTransposeControl && configuredTranspose !== null) {
-    const radio = [...transposeRadios]
-      .find((input) => getRadioValue(input) === String(configuredTranspose));
-    if (radio) radio.checked = true;
     setTranspose(configuredTranspose);
   }
+
+  window.addEventListener("keydown", (event) => {
+    if (!event.ctrlKey || event.altKey || event.metaKey) return;
+    const target = event.target;
+    if (
+      target instanceof HTMLElement &&
+      (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+    ) {
+      return;
+    }
+
+    const isReset = event.key === "Home";
+    const delta = event.key === "ArrowUp" ? 1 : event.key === "ArrowDown" ? -1 : null;
+    if (delta === null && !isReset) return;
+    event.preventDefault();
+
+    if (hasTransposeControl) {
+      setTranspose(isReset ? 0 : transposeSemitones + delta);
+      return;
+    }
+    for (const config of new Set(chordElements.map((item) => item.config))) {
+      config.transpose = isReset ? 0 : (config.transpose + delta) % 12 || 0;
+    }
+    refreshChordSpellings();
+  });
 
   const sizeControl = document.querySelector(".chord-size-control");
   const sizeRadios = sizeControl?.querySelectorAll('input[name="chord-size"]') ?? [];
