@@ -1,6 +1,6 @@
 # Big Chords
 
-`js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. It expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. Alternatively, `data-detect-chords="comma"` detects chord lines by a leading comma instead of line pairing (see [Data attributes](#data-attributes)).
+`js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. A page may contain several `<pre data-chord-lines>` elements; each one is rendered as its own song section, and the page-level widgets and `<script>` `data-` attributes apply to all of them. The script expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. Alternatively, `data-detect-chords="comma"` detects chord lines by a leading comma instead of line pairing (see [Data attributes](#data-attributes)). See [samples/multiple-pre.html](samples/multiple-pre.html) for an example.
 
 When a word is split across a fragment boundary, the script compares the rendered positions of neighboring fragments. If they end up on different visual lines, a hyphen is inserted at the end of the lyric; if they stay on the same line but a wide gap opens inside the word (wider than half the lyric font size), an en dash is inserted roughly in the middle of the gap instead. Small or absent gaps leave the word visually intact. A run of underscores at the end of a lyric fragment is treated as an explicit word break: the underscores are hidden (keeping their width, so chord alignment is preserved) and the same dash rules apply.
 
@@ -64,7 +64,7 @@ The result looks like this:
 
 ## Data attributes
 
-Set options on the `<script>` element to provide defaults, or on a specific `<pre data-chord-lines>` to override them for that chord sheet. When both elements define the same option, the `<pre>` value takes precedence. These values set the initial options and update matching controls; the controls remain available for changing settings while the page is open.
+Set options on the `<script>` element to provide defaults for the whole page, or on a `<pre data-chord-lines>` to override them for that chord sheet. When both elements define the same option, the `<pre>` value takes precedence. When the page has several chord sheets, each `<pre>` may override any option through its own attributes, but only for parameters that have no widget on the page — a present widget (radio group or button control) always takes precedence and applies its value to every chord sheet. These values set the initial options and update matching controls; the controls remain available for changing settings while the page is open.
 
 - `data-notation-system`: how to read chord names; `auto`, `english`, or `german`.
 - `data-enharmonic-preference`: how to spell enharmonic notes; `as-is`, `sharps`, or `flats`.
@@ -197,6 +197,7 @@ Examples are in the `samples/` directory:
 - [The One Horse Open Sleigh — full example](samples/one-horse-open-sleigh.html), with all three settings configurable: chord size, enharmonic spelling, and displayed notation system.
 - [The One Horse Open Sleigh — German notation preset](samples/one-horse-open-sleigh-german.html), with German display notation selected through a `data-` attribute.
 - [Comma-prefixed chord lines](samples/comma-chords.html), a bard-wiki-style sheet detected via `data-detect-chords="comma"`.
+- [Multiple chord sheets](samples/multiple-pre.html), a page with several `<pre data-chord-lines>` sharing one set of controls.
 
 For pages in `samples/`, use the paths `../css/style.css` and `../js/big-chords.js`.
 

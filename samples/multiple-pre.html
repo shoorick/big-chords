@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multiple pre example</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+      :root { --accent-color: #00c }
+      body { max-width: inherit }
+      h1 { color: var(--accent-color) }
+      main { display: flex }
+    </style>
+    <script src="../js/big-chords.js"
+      defer
+      data-detect-chords="comma"
+      data-internal-markup="mediawiki"
+      data-display-notation-system="german"></script>
+  </head>
+  <body>
+    <p>Page can contains more than one <code>&lt;pre data-chord-lines&gt;</code>
+    <div class="song-controls button-like">
+      <fieldset class="enharmonic-control">
+        <legend>Chord spelling</legend>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="flats">
+          <span class="accidental accidental--flat">♭</span>
+        </label>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="as-is" checked>
+          as is
+        </label>
+        <label>
+          <input type="radio" name="enharmonic-preference" value="sharps">
+          <span class="accidental accidental--sharp">♯</span>
+        </label>
+      </fieldset>
+      <fieldset class="notation-system-control">
+        <legend>Notation system</legend>
+        <label>
+          <input type="radio" name="display-notation-system" value="english" checked>
+          English (B<span class="accidental accidental--flat">♭</span>)
+        </label>
+        <label>
+          <input type="radio" name="display-notation-system" value="german">
+          German (H)
+        </label>
+      </fieldset>
+      <fieldset class="transpose-control">
+        <legend>Transpose</legend>
+        <label><input type="radio" name="transpose-semitones">-6</label>
+        <label><input type="radio" name="transpose-semitones">-5</label>
+        <label><input type="radio" name="transpose-semitones">-4</label>
+        <label><input type="radio" name="transpose-semitones">-3</label>
+        <label><input type="radio" name="transpose-semitones">-2</label>
+        <label><input type="radio" name="transpose-semitones">-1</label>
+        <label><input type="radio" name="transpose-semitones" checked>0</label>
+        <label><input type="radio" name="transpose-semitones">+1</label>
+        <label><input type="radio" name="transpose-semitones">+2</label>
+        <label><input type="radio" name="transpose-semitones">+3</label>
+        <label><input type="radio" name="transpose-semitones">+4</label>
+        <label><input type="radio" name="transpose-semitones">+5</label>
+        <label><input type="radio" name="transpose-semitones">+6</label>
+      </fieldset>
+    </div>
+    <h1>Синий цвет</h1>
+    <address>музыка Сергея Никитина на стихи Николоза Бараташвили в переводе Бориса Пастернака</address>
+    <main>
+    <pre data-chord-lines>
+, Cm            D7     G7
+  Цвет небесный, синий цвет
+,C7           Fm    Fm/E♭
+  полюбил я с малых лет.
+,   B7/D    B7    E♭
+  В детстве он мне означал
+,D♭             Dm7/-5  G7/+5 G7
+  синеву иных начал.
+,Cm            D7   G7 
+  И теперь, когда достиг
+, C7        Fm      Fm/E♭
+  я вершины дней своих,
+,   B7/D  B7     E♭ 
+  в жертву остальным цветам
+,     D♭      G7 Cm
+  голубого не от_дам.</pre>
+<pre data-chord-lines>
+, E♭           F7     B7
+  Он прекрасен без прикрас.
+,E♭   E♭7    A♭    A♭+7
+  Это цвет любимых глаз.
+, D7            Gm7    C7 
+  Это взгляд бездонный твой,
+,     F7        B7
+  напоённый синевой.
+, E♭         F7    B7
+  Это цвет моей мечты.
+,E♭   E♭7   A♭   A♭+7
+  Это краска высоты.
+,   D7       Gm7     C7 
+  В этот голубой раствор
+,      Fm7    B7     E♭   G7/+5 G7
+  погружён земной простор.</pre>
+<pre data-chord-lines>
+,Cm          D7   G7 
+  Это лёгкий переход
+,C7               Fm   Fm/E♭
+  в неизвестность от забот
+, B7/D B7   E♭
+  и от плачущих родных
+, D♭             Dm7/-5 G7/+5 G7
+  на похоронах моих.
+,Cm         D7   G7 
+  Это синий, негустой
+, C7         Fm    Fm/E♭
+  иней над моей плитой.
+, B7/D B7    E♭
+  Это  сизый зимний дым
+, D♭          G7    Cm
+  мглы над именем моим.</pre>
+<pre data-chord-lines data-chord-size="3">
+, E♭      F7 B7
+  Ла-ла...
+,E♭ E♭7 A♭ D7 Gm7 C7 Fm7 B7 Adim G7</pre></main>
+    <p>
+      Никитин С. Я. Времена не выбирают : Сборник песен / Сост. В. Романова. — М.: Аргус, 1994. — С. 227—229. — 304 с. — 20 000 экз. — ISBN 5-85549-034-3.
+    </p>
+  </body>
+</html>

@@ -23,10 +23,10 @@
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
   const CHORD_ENHARMONIC_PREFERENCE = "as-is"; // "sharps", "flats", or "as-is"
   const scriptElement = typeof document === "undefined" ? null : document.currentScript;
-  const source = typeof document === "undefined"
-    ? null
-    : document.querySelector("pre[data-chord-lines]");
-  if (!source) {
+  const sources = typeof document === "undefined"
+    ? []
+    : [...document.querySelectorAll("pre[data-chord-lines]")];
+  if (sources.length === 0) {
     if (typeof module !== "undefined" && module.exports) {
       module.exports = {
         detectNotationSystem,
@@ -39,103 +39,139 @@
     return;
   }
 
-  const song = document.createElement("section");
-  song.className = "song";
-
-  const lines = source.textContent.replace(/\r\n?/g, "\n").split("\n");
-  if (lines.at(-1) === "") lines.pop();
-  const configuredNotationSystem = getDataSetting(
-    "notation-system",
-    ["english", "german", "auto"],
-    CHORD_NOTATION_SYSTEM,
-  );
-  const detectChords = getDataSetting("detect-chords", ["comma"], null);
-  const chordSourceLines = detectChords === "comma"
-    ? lines.filter((line) => line.startsWith(",")).map((line) => line.slice(1))
-    : lines.filter((_, index) => index % 2 === 0);
-  const detectedNotationSystem = detectNotationSystem(chordSourceLines);
-  const notationSystem = configuredNotationSystem === "auto"
-    ? detectedNotationSystem
-    : configuredNotationSystem;
+  const primarySource = sources[0];
   const configuredEnharmonicPreference = getDataSetting(
+    primarySource,
     "enharmonic-preference",
     ["sharps", "flats", "as-is"],
     CHORD_ENHARMONIC_PREFERENCE,
   );
   const configuredDisplayNotationSystem = getDataSetting(
+    primarySource,
     "display-notation-system",
     ["english", "german"],
     null,
   );
   const configuredChordSize = getDataSetting(
+    primarySource,
     "chord-size",
     ["1", "2", "3", "4", "5", "6"],
     null,
   );
-  const configuredTranspose = getTransposeSetting();
-  const internalMarkup = getDataSetting("internal-markup", ["mediawiki"], null) === "mediawiki";
-  applyDataSettingToControl("enharmonic-preference", ["sharps", "flats", "as-is"]);
-  applyDataSettingToControl("display-notation-system", ["english", "german"]);
-  applyDataSettingToControl("chord-size", ["1", "2", "3", "4", "5", "6"]);
+  const configuredTranspose = getTransposeSetting(primarySource);
+  const hasEnharmonicControl = document.querySelector('input[name="enharmonic-preference"]') !== null;
+  const hasDisplaySystemControl = document.querySelector('input[name="display-notation-system"]') !== null;
+  const hasChordSizeControl = document.querySelector(".chord-size-control") !== null;
+  const hasTransposeControl = document.querySelector(".transpose-control") !== null;
+  applyDataSettingToControl(primarySource, "enharmonic-preference", ["sharps", "flats", "as-is"]);
+  applyDataSettingToControl(primarySource, "display-notation-system", ["english", "german"]);
+  applyDataSettingToControl(primarySource, "chord-size", ["1", "2", "3", "4", "5", "6"]);
   const enharmonicPreference = getEnharmonicPreference(configuredEnharmonicPreference);
   const chordElements = [];
+  const songs = [];
   let transposeSemitones = 0;
 
-  const pairs = [];
-  if (detectChords === "comma") {
-    for (let index = 0; index < lines.length; index += 1) {
-      const line = lines[index];
-      if (line.startsWith(",")) {
-        const hasLyric = index + 1 < lines.length && !lines[index + 1].startsWith(",");
-        pairs.push({ chord: line.replace(/^,/, " "), lyric: hasLyric ? lines[++index] : "" });
-      } else {
-        pairs.push({ chord: "", lyric: line });
-      }
-    }
-  } else {
-    for (let index = 0; index < lines.length; index += 2) {
-      pairs.push({ chord: lines[index] ?? "", lyric: lines[index + 1] ?? "" });
-    }
+  for (const source of sources) {
+    renderSong(source);
   }
 
-  for (const { chord: chordSource, lyric: lyricSource } of pairs) {
-    const lyricLine = Array.from(lyricSource ?? "");
-    const chords = [...(chordSource ?? "").matchAll(/\S+/g)].map((match) => {
-      const parsed = parseChord(match[0], notationSystem);
-      return {
-        parsed,
-        chord: parsed
-          ? respellChord(parsed, enharmonicPreference, getDisplayNotationSystem(configuredDisplayNotationSystem))
-          : match[0],
-        column: Array.from((chordSource ?? "").slice(0, match.index)).length,
-      };
-    });
+  /**
+   * Renders one chord sheet `<pre>` into a song section in place.
+   * @param {HTMLElement} source Source element to replace.
+   * @returns {void}
+   */
+  function renderSong(source) {
+    const song = document.createElement("section");
+    song.className = "song";
 
-    const row = document.createElement("article");
-    row.className = "song-line";
+    const lines = source.textContent.replace(/\r\n?/g, "\n").split("\n");
+    if (lines.at(-1) === "") lines.pop();
+    const configuredNotationSystem = getDataSetting(
+      source,
+      "notation-system",
+      ["english", "german", "auto"],
+      CHORD_NOTATION_SYSTEM,
+    );
+    const detectChords = getDataSetting(source, "detect-chords", ["comma"], null);
+    const chordSourceLines = detectChords === "comma"
+      ? lines.filter((line) => line.startsWith(",")).map((line) => line.slice(1))
+      : lines.filter((_, index) => index % 2 === 0);
+    const detectedNotationSystem = detectNotationSystem(chordSourceLines);
+    const notationSystem = configuredNotationSystem === "auto"
+      ? detectedNotationSystem
+      : configuredNotationSystem;
+    const internalMarkup = getDataSetting(source, "internal-markup", ["mediawiki"], null) === "mediawiki";
+    const songConfig = {
+      enharmonicPreference: hasEnharmonicControl
+        ? enharmonicPreference
+        : getDataSetting(source, "enharmonic-preference", ["sharps", "flats", "as-is"], CHORD_ENHARMONIC_PREFERENCE),
+      displayNotationSystem: hasDisplaySystemControl
+        ? getDisplayNotationSystem(configuredDisplayNotationSystem)
+        : getDataSetting(source, "display-notation-system", ["english", "german"], null),
+      transpose: hasTransposeControl ? 0 : getTransposeSetting(source) ?? 0,
+    };
+    if (!hasChordSizeControl) {
+      const size = getDataSetting(source, "chord-size", ["1", "2", "3", "4", "5", "6"], null);
+      if (size !== null) song.style.setProperty("--chord-size", `${size}em`);
+    }
 
-    let cursor = 0;
-    for (const [chordIndex, item] of chords.entries()) {
-      if (item.column > cursor) {
-        addFragment(row, "", lyricLine.slice(cursor, item.column).join(""));
+    const pairs = [];
+    if (detectChords === "comma") {
+      for (let index = 0; index < lines.length; index += 1) {
+        const line = lines[index];
+        if (line.startsWith(",")) {
+          const hasLyric = index + 1 < lines.length && !lines[index + 1].startsWith(",");
+          pairs.push({ chord: line.replace(/^,/, " "), lyric: hasLyric ? lines[++index] : "" });
+        } else {
+          pairs.push({ chord: "", lyric: line });
+        }
+      }
+    } else {
+      for (let index = 0; index < lines.length; index += 2) {
+        pairs.push({ chord: lines[index] ?? "", lyric: lines[index + 1] ?? "" });
+      }
+    }
+
+    for (const { chord: chordSource, lyric: lyricSource } of pairs) {
+      const lyricLine = Array.from(lyricSource ?? "");
+      const chords = [...(chordSource ?? "").matchAll(/\S+/g)].map((match) => {
+        const parsed = parseChord(match[0], notationSystem);
+        return {
+          parsed,
+          chord: parsed
+            ? respellChord(parsed, songConfig.enharmonicPreference, songConfig.displayNotationSystem)
+            : match[0],
+          column: Array.from((chordSource ?? "").slice(0, match.index)).length,
+        };
+      });
+
+      const row = document.createElement("article");
+      row.className = "song-line";
+
+      let cursor = 0;
+      for (const [chordIndex, item] of chords.entries()) {
+        if (item.column > cursor) {
+          addFragment(row, "", lyricLine.slice(cursor, item.column).join(""), internalMarkup);
+        }
+
+        const nextColumn = chords[chordIndex + 1]?.column ?? lyricLine.length;
+        const chordElement = addFragment(row, item.chord, lyricLine.slice(item.column, nextColumn).join(""), internalMarkup);
+        if (item.parsed) chordElements.push({ element: chordElement, parsed: item.parsed, config: songConfig });
+        cursor = Math.max(cursor, nextColumn);
       }
 
-      const nextColumn = chords[chordIndex + 1]?.column ?? lyricLine.length;
-      const chordElement = addFragment(row, item.chord, lyricLine.slice(item.column, nextColumn).join(""));
-      if (item.parsed) chordElements.push({ element: chordElement, parsed: item.parsed });
-      cursor = Math.max(cursor, nextColumn);
+      if (chords.length === 0) {
+        addFragment(row, "", lyricLine.join(""), internalMarkup);
+      } else if (cursor < lyricLine.length) {
+        addFragment(row, "", lyricLine.slice(cursor).join(""), internalMarkup);
+      }
+
+      song.append(row);
     }
 
-    if (chords.length === 0) {
-      addFragment(row, "", lyricLine.join(""));
-    } else if (cursor < lyricLine.length) {
-      addFragment(row, "", lyricLine.slice(cursor).join(""));
-    }
-
-    song.append(row);
+    source.replaceWith(song);
+    songs.push(song);
   }
-
-  source.replaceWith(song);
 
   const wordCharPattern = /[\p{L}\p{N}\p{M}]/u;
 
@@ -203,7 +239,7 @@
    * @returns {void}
    */
   const updateWordBreakMarkers = () => {
-    for (const row of song.querySelectorAll(".song-line")) {
+    for (const row of songs.flatMap((song) => [...song.querySelectorAll(".song-line")])) {
       const fragments = [...row.querySelectorAll(".song-fragment")];
       for (const [index, fragment] of fragments.entries()) {
         const next = fragments[index + 1];
@@ -270,19 +306,25 @@
 
   /** Rewrites displayed chord labels using the currently selected spellings. */
   const refreshChordSpellings = () => {
-    const preference = getEnharmonicPreference(configuredEnharmonicPreference);
-    const displaySystem = getDisplayNotationSystem(configuredDisplayNotationSystem);
-    for (const { element, parsed } of chordElements) {
+    for (const { element, parsed, config } of chordElements) {
+      const preference = hasEnharmonicControl
+        ? getEnharmonicPreference(configuredEnharmonicPreference)
+        : config.enharmonicPreference;
+      const displaySystem = hasDisplaySystemControl
+        ? getDisplayNotationSystem(configuredDisplayNotationSystem)
+        : config.displayNotationSystem;
+      const transpose = hasTransposeControl ? transposeSemitones : config.transpose;
       renderChordLabel(
         element,
         respellChord(
-          transposeChord(parsed, transposeSemitones),
+          transposeChord(parsed, transpose),
           preference,
           displaySystem,
         ),
       );
     }
   };
+  refreshChordSpellings();
 
   for (const control of document.querySelectorAll(".enharmonic-control, .notation-system-control")) {
     control.addEventListener("change", (event) => {
@@ -327,7 +369,7 @@
       setTranspose(transposeSemitones + change);
     });
   }
-  if (configuredTranspose !== null) {
+  if (hasTransposeControl && configuredTranspose !== null) {
     const radio = [...transposeRadios]
       .find((input) => getRadioValue(input) === String(configuredTranspose));
     if (radio) radio.checked = true;
@@ -345,14 +387,14 @@
   const setChordSize = (value) => {
     const parsedSize = Number.parseInt(value, 10);
     const size = Number.isInteger(parsedSize) ? Math.min(6, Math.max(1, parsedSize)) : 2;
-    song.style.setProperty("--chord-size", `${size}em`);
+    for (const song of songs) song.style.setProperty("--chord-size", `${size}em`);
     updateWordBreakMarkers();
     return size;
   };
   const checkedRadio = sizeControl?.querySelector('input[name="chord-size"]:checked');
   const checkedSize = checkedRadio ? getRadioValue(checkedRadio) : undefined;
   const initialSize = configuredChordSize ?? checkedSize ?? sizeOutput?.textContent ?? 2;
-  const size = setChordSize(initialSize);
+  const size = hasChordSizeControl ? setChordSize(initialSize) : null;
   if (sizeRadios.length > 0) {
     const radio = [...sizeRadios].find((input) => getRadioValue(input) === String(size));
     if (radio) radio.checked = true;
@@ -385,9 +427,10 @@
    * @param {HTMLElement} row Parent line element.
    * @param {string} chord Chord label, or an empty string for no chord.
    * @param {string} lyric Corresponding lyric fragment.
+   * @param {boolean} markup Whether to parse MediaWiki-style ''italic'' and '''bold''' markup.
    * @returns {HTMLElement} The fragment's chord element.
    */
-  function addFragment(row, chord, lyric) {
+  function addFragment(row, chord, lyric, markup) {
     const fragment = document.createElement("div");
     fragment.className = "song-fragment";
 
@@ -401,7 +444,7 @@
     renderLyricText(
       lyricElement,
       forcedBreak ? lyric.replace(/_+$/, "") : lyric,
-      internalMarkup,
+      markup,
     );
     if (forcedBreak) {
       lyricElement.classList.add("forced-break");
@@ -524,12 +567,13 @@
 
   /**
    * Reads a validated setting, preferring the chord sheet's `<pre>` over the script element.
+   * @param {HTMLElement} source Chord sheet `<pre>` element.
    * @param {string} name Data-attribute name without the `data-` prefix.
    * @param {string[]} validValues Accepted values.
    * @param {string | null} fallback Value returned when neither element has a valid setting.
    * @returns {string | null}
    */
-  function getDataSetting(name, validValues, fallback) {
+  function getDataSetting(source, name, validValues, fallback) {
     for (const element of [source, scriptElement]) {
       const value = element?.getAttribute(`data-${name}`);
       if (validValues.includes(value)) return value;
@@ -540,9 +584,10 @@
   /**
    * Reads a validated transposition offset, preferring the chord sheet's `<pre>` over the script element.
    * Any integer is accepted and reduced modulo 12 to the -11 to +11 range.
+   * @param {HTMLElement} source Chord sheet `<pre>` element.
    * @returns {number | null} Offset in semitones, or null when unset or invalid.
    */
-  function getTransposeSetting() {
+  function getTransposeSetting(source) {
     for (const element of [source, scriptElement]) {
       const raw = element?.getAttribute("data-transpose");
       if (raw === null || raw === undefined || !/^-?\d+$/.test(raw.trim())) continue;
@@ -553,12 +598,13 @@
 
   /**
    * Sets the radio matching a configured data setting, when that control exists.
+   * @param {HTMLElement} source Chord sheet `<pre>` element the setting is read from.
    * @param {string} name Radio group and data-attribute name.
    * @param {string[]} validValues Accepted values.
    * @returns {void}
    */
-  function applyDataSettingToControl(name, validValues) {
-    const value = getDataSetting(name, validValues, null);
+  function applyDataSettingToControl(source, name, validValues) {
+    const value = getDataSetting(source, name, validValues, null);
     if (value === null) return;
 
     const radio = [...document.querySelectorAll(`input[name="${name}"]`)]
