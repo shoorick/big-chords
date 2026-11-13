@@ -5,7 +5,8 @@
   --button-color: #111;
   --button-label-color: #666;
   --control-inline-padding: 0.5em;
-  --button-group-radius: 0.25em;
+  --button-group-radius: 0.5em;
+  --fieldset-radius: 0.75em;
   --body-font-family: "Open Sans", sans-serif;
   --chord-font-family: Montserrat, sans-serif;
 }
@@ -17,6 +18,13 @@ body {
   line-height: 1.5;
   margin: 1rem auto;
   padding: 0 1rem;
+}
+
+fieldset {
+  border-width: 1px;
+  border-style: solid;
+  border-color: #0006;
+  border-radius: var(--fieldset-radius);
 }
 
 div.chord-size-control,
