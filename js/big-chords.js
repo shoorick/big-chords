@@ -23,9 +23,16 @@
   const CHORD_NOTATION_SYSTEM = "auto"; // "english", "german", or "auto"
   const CHORD_ENHARMONIC_PREFERENCE = "as-is"; // "sharps", "flats", or "as-is"
   const scriptElement = typeof document === "undefined" ? null : document.currentScript;
-  const sources = typeof document === "undefined"
-    ? []
-    : [...document.querySelectorAll("pre[data-chord-lines]")];
+  const chordSelector = scriptElement?.getAttribute("data-selector")?.trim()
+    || "pre[data-chord-lines]";
+  let sources = [];
+  if (typeof document !== "undefined") {
+    try {
+      sources = [...document.querySelectorAll(chordSelector)];
+    } catch {
+      sources = [...document.querySelectorAll("pre[data-chord-lines]")];
+    }
+  }
   if (sources.length === 0) {
     if (typeof module !== "undefined" && module.exports) {
       module.exports = {
