@@ -1,4 +1,4 @@
-# Big Chords
+# ![♯](images/icon.svg) Big Chords
 
 `js/big-chords.js` turns a chord sheet inside a `<pre>` element into responsive HTML fragments. A page may contain several `<pre data-chord-lines>` elements; each one is rendered as its own song section, and the page-level widgets and `<script>` `data-` attributes apply to all of them. The script expects lines in pairs: a chord line followed by a lyric line. Chords and lyrics are split at matching character columns, so they stay aligned as the fragments wrap. Alternatively, `data-detect-chords="comma"` detects chord lines by a leading comma instead of line pairing (see [Data attributes](#data-attributes)). See [samples/multiple-pre.html](samples/multiple-pre.html) for an example.
 
