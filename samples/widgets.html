@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Multiple pre example</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/big-chords.js"
+      defer
+      data-selector="pre"
+      data-notation-system="german"
+      data-display-notation-system="german"></script>
+  </head>
+  <body>
+    <div class="song-controls button-like">
+      <fieldset class="chord-size-control">
+        <legend>Chord size</legend>
+        <label><input type="radio" name="chord-size">1</label>
+        <label><input type="radio" name="chord-size" checked>2</label>
+        <label><input type="radio" name="chord-size">3</label>
+        <label><input type="radio" name="chord-size">4</label>
+        <label><input type="radio" name="chord-size">5</label>
+        <label><input type="radio" name="chord-size">6</label>
+      </fieldset>
+      <fieldset class="enharmonic-control">
+        <legend>Chord spelling</legend>
+        <label title="Prefer flats">
+          <input type="radio" name="enharmonic-preference" value="flats">
+          <span class="accidental accidental--flat">♭</span>
+        </label>
+        <label title="Display with original accidentals">
+          <input type="radio" name="enharmonic-preference" value="as-is" checked>
+          as is
+        </label>
+        <label title="Prefer sharps">
+          <input type="radio" name="enharmonic-preference" value="sharps">
+          <span class="accidental accidental--sharp">♯</span>
+        </label>
+      </fieldset>
+      <fieldset class="notation-system-control">
+        <legend>Notation system</legend>
+        <label title="B is natural, B♭ is flat">
+          <input type="radio" name="display-notation-system" value="english" checked>
+          English (B<span class="accidental accidental--flat">♭</span>)
+        </label>
+        <label title="H is natural, B is flat">
+          <input type="radio" name="display-notation-system" value="german">
+          German (H)
+        </label>
+      </fieldset>
+      <fieldset class="transpose-control">
+        <legend>Transpose</legend>
+        <label title="Tritone down/up"><input type="radio" name="transpose-semitones">-6</label>
+        <label title="Perfect 4th down><input type="radio" name="transpose-semitones">-5</label>
+        <label title="Major 3rd down"><input type="radio" name="transpose-semitones">-4</label>
+        <label title="Minor 3rd down"><input type="radio" name="transpose-semitones">-3</label>
+        <label title="Major 2nd down"><input type="radio" name="transpose-semitones">-2</label>
+        <label title="Minor 2nd down"><input type="radio" name="transpose-semitones">-1</label>
+        <label title="Original pitch"><input type="radio" name="transpose-semitones" checked>0</label>
+        <label title="Minor 2nd up"><input type="radio" name="transpose-semitones">+1</label>
+        <label title="Major 2nd up"><input type="radio" name="transpose-semitones">+2</label>
+        <label title="Minor 3rd up"><input type="radio" name="transpose-semitones">+3</label>
+        <label title="Major 3rd up"><input type="radio" name="transpose-semitones">+4</label>
+        <label title="Perfect 4th up"><input type="radio" name="transpose-semitones">+5</label>
+        <label title="Tritone up/down"><input type="radio" name="transpose-semitones">+6</label>
+      </fieldset>
+    </div>
+    <h1>Widgets</h1>
+    <p>The panel above has all possible controls.</p>
+    <pre>
+      A       B   C  C# Dsus4 D
+      Another big croco_dile  drew
+      E  Em F    G  G6
+      every fine green
+      H    E7 Em
+      hill in June
+    </pre>
+  </body>
+</html>
