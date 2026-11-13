@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --accent-color: #900;
   --background-color: #fff;
   --text-color: #000;
@@ -13,8 +13,9 @@
   --chord-font-family: Montserrat, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@media screen and (prefers-color-scheme: dark) {
   :root {
+    color-scheme: dark;
     --accent-color: #f90;
     --background-color: #000;
     --text-color: #fff;
