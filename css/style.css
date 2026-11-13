@@ -1,14 +1,31 @@
 :root {
+  color-scheme: light dark;
   --accent-color: #900;
   --background-color: #fff;
   --text-color: #000;
   --button-color: #111;
   --button-label-color: #666;
+  --border-color: #0006;
   --control-inline-padding: 0.5em;
   --button-group-radius: 0.5em;
   --fieldset-radius: 0.75em;
   --body-font-family: "Open Sans", sans-serif;
   --chord-font-family: Montserrat, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent-color: #f90;
+    --background-color: #000;
+    --text-color: #fff;
+    --button-color: #eee;
+    --button-label-color: #aaa;
+    --border-color: #fff6;
+  }
+
+  a {
+    color: var(--accent-color);
+  }
 }
 
 body {
@@ -23,7 +40,7 @@ body {
 fieldset {
   border-width: 1px;
   border-style: solid;
-  border-color: #0006;
+  border-color: var(--border-color);
   border-radius: var(--fieldset-radius);
 }
 
