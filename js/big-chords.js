@@ -484,9 +484,10 @@
   const applyTheme = (preference = readThemePreference()) => {
     if (preference === "auto" && themeMedia === null) {
       document.documentElement.removeAttribute("data-theme");
-      return;
+    } else {
+      document.documentElement.dataset.theme = preference === "auto" ? systemTheme() : preference;
     }
-    document.documentElement.dataset.theme = preference === "auto" ? systemTheme() : preference;
+    syncAccentPicker();
   };
   const checkThemeRadio = (preference) => {
     const radio = [...themeRadios].find((input) => getRadioValue(input) === preference);
@@ -520,6 +521,31 @@
         themeMedia.addListener?.(onSystemThemeChange);
       }
     }
+  }
+
+  function normalizeHexColor(value) {
+    const match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim());
+    if (!match) return null;
+    const hex = match[1].length === 3
+      ? [...match[1]].map((char) => char + char).join("")
+      : match[1];
+    return `#${hex.toLowerCase()}`;
+  }
+
+  function syncAccentPicker() {
+    const input = document.querySelector('.theme-control input[type="color"]');
+    if (!input) return;
+    const raw = getComputedStyle(document.documentElement).getPropertyValue("--accent-color").trim();
+    const normalized = normalizeHexColor(raw);
+    if (normalized) input.value = normalized;
+  }
+
+  const accentControl = document.querySelector('.theme-control input[type="color"]');
+  if (accentControl) {
+    syncAccentPicker();
+    accentControl.addEventListener("input", () => {
+      document.documentElement.style.setProperty("--accent-color", accentControl.value);
+    });
   }
 
   /**

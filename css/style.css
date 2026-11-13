@@ -131,6 +131,12 @@ div.transpose-control {
   z-index: 1;
 }
 
+.song-controls fieldset input[type="color"] {
+  margin-left: .5em;
+  border-color: var(--accent-color);
+  border-radius: var(--button-group-radius);
+}
+
 .enharmonic-control,
 .notation-system-control,
 .theme-control,
