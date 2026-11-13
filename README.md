@@ -188,6 +188,21 @@ Alternatively, a stepper with <kbd>−</kbd>/<kbd>+</kbd> buttons and an `<outpu
 </div>
 ```
 
+### Theme control
+
+A radio group named `theme` switches between light, automatic, and dark themes:
+
+```html
+<fieldset class="theme-control">
+  <legend>Theme</legend>
+  <label title="Light"><input type="radio" name="theme" value="light">☼</label>
+  <label title="Automatic (system preference)"><input type="radio" name="theme" value="auto" checked>auto</label>
+  <label title="Dark"><input type="radio" name="theme" value="dark">☽</label>
+</fieldset>
+```
+
+`auto` follows the operating system's `prefers-color-scheme` setting and updates when it changes. `light` and `dark` override the system preference. The chosen preference is stored in `localStorage` and applied on every page that includes the control. The script sets `data-theme="light"` or `data-theme="dark"` on the `<html>` element; pages without a theme control still switch automatically through `prefers-color-scheme`.
+
 
 ## Examples
 

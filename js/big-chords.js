@@ -459,6 +459,69 @@
     }
   }
 
+  const THEME_STORAGE_KEY = "big-chords-theme";
+  const validThemes = ["light", "auto", "dark"];
+  const themeControl = document.querySelector(".theme-control");
+  const themeRadios = themeControl?.querySelectorAll('input[name="theme"]') ?? [];
+  const themeMedia = typeof window.matchMedia === "function"
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+  const readStoredTheme = () => {
+    try {
+      return window.localStorage.getItem(THEME_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  };
+  const readThemePreference = () => {
+    const stored = readStoredTheme();
+    if (validThemes.includes(stored)) return stored;
+    const checked = themeControl?.querySelector('input[name="theme"]:checked');
+    const value = checked ? getRadioValue(checked) : null;
+    return validThemes.includes(value) ? value : "auto";
+  };
+  const systemTheme = () => themeMedia?.matches ? "dark" : "light";
+  const applyTheme = (preference = readThemePreference()) => {
+    if (preference === "auto" && themeMedia === null) {
+      document.documentElement.removeAttribute("data-theme");
+      return;
+    }
+    document.documentElement.dataset.theme = preference === "auto" ? systemTheme() : preference;
+  };
+  const checkThemeRadio = (preference) => {
+    const radio = [...themeRadios].find((input) => getRadioValue(input) === preference);
+    if (radio) radio.checked = true;
+  };
+  const persistThemePreference = (preference) => {
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+    } catch {
+      return;
+    }
+  };
+  if (themeRadios.length > 0) {
+    const initialTheme = readThemePreference();
+    checkThemeRadio(initialTheme);
+    applyTheme(initialTheme);
+    themeControl.addEventListener("change", (event) => {
+      if (event.target.name !== "theme") return;
+      const preference = getRadioValue(event.target);
+      if (!validThemes.includes(preference)) return;
+      persistThemePreference(preference);
+      applyTheme(preference);
+    });
+    if (themeMedia) {
+      const onSystemThemeChange = () => {
+        if (readThemePreference() === "auto") applyTheme("auto");
+      };
+      if (typeof themeMedia.addEventListener === "function") {
+        themeMedia.addEventListener("change", onSystemThemeChange);
+      } else {
+        themeMedia.addListener?.(onSystemThemeChange);
+      }
+    }
+  }
+
   /**
    * Adds one chord-and-lyric fragment to a rendered song line.
    * @param {HTMLElement} row Parent line element.
@@ -662,6 +725,12 @@
     if (input.name === "transpose-semitones" && input.value === "on") {
       const label = input.closest("label")?.textContent.trim();
       if (/^[+-]?\d+$/.test(label)) return String(Number.parseInt(label, 10));
+    }
+    if (input.name === "theme" && input.value === "on") {
+      const label = input.closest("label")?.textContent.trim().toLowerCase() ?? "";
+      if (label.includes("auto")) return "auto";
+      if (label.includes("☼") || label.includes("light")) return "light";
+      if (label.includes("☽") || label.includes("dark")) return "dark";
     }
     return input.value;
   }
