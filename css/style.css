@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --accent-color: #900;
+  --accent-color: #c20;
   --background-color: #fff;
   --text-color: #000;
   --button-color: #111;
@@ -16,7 +16,7 @@
 @media screen and (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --accent-color: #f90;
+    --accent-color: #f83;
     --background-color: #000;
     --text-color: #fff;
     --button-color: #eee;
